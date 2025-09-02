@@ -74,7 +74,7 @@ function HeaderRightContent() {
   const dispatch = useDispatch();
 
   function handleLogout() {
-   // dispatch(logoutUser());  // logoutuser hmne store me auth me bna rkha h 
+    //dispatch(logoutUser());  // logoutuser hmne store me auth me bna rkha h 
    dispatch(resetTokenAndCredentials());
    sessionStorage.clear();
    navigate("/auth/login");
