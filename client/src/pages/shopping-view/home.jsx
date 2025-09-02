@@ -119,7 +119,7 @@ function ShoppingHome() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="relative w-full h-[600px] overflow-hidden">
+      <div className="relative w-full h-[600px] sm:h-[300px] overflow-hidden">
 
         {featureImageList && featureImageList.length > 0
         ? featureImageList.map((slide, index) => {
@@ -131,7 +131,7 @@ function ShoppingHome() {
                 src={slide?.image}
                 className={`${
                   index === currentSlide ? "opacity-100" : "opacity-0"
-                } absolute top-0 left-0 w-full h-full xs:object-contain xs:h-[200px] xs:w-[200px] object-cover transition-opacity duration-1000 border-4 border-white rounded-3xl shadow-lg px-2 py-2`}
+                } absolute top-0 left-0 w-full h-full sm:object-contain object-cover transition-opacity duration-1000 border-4 border-white rounded-3xl shadow-lg px-2 py-2`}
                 autoPlay
                 //muted
                 loop
@@ -145,7 +145,7 @@ function ShoppingHome() {
                 alt={`slide-${index}`}
                 className={`${
                   index === currentSlide ? "opacity-100" : "opacity-0"
-                } absolute top-0 left-0 w-full h-full xs:object-contain xs:h-[200px] xs:w-[200px] transition-opacity duration-1000 border-4 border-white rounded-3xl shadow-lg px-2 py-2`}
+                } absolute top-0 left-0 w-full h-full sm:object-contain transition-opacity duration-1000 border-4 border-white rounded-3xl shadow-lg px-2 py-2`}
               />
             );
           })
