@@ -36,12 +36,12 @@ const createOrder = async (req, res) => {
               name: item.title,
               sku: item.productId, // sku – a unique identifier,
               price: item.price.toFixed(2),
-              currency: "INR",  //  paypal sendbox only accpet the usd payment latter on in live mode it automatically convert the usd in inr
+              currency: "USD",  //  paypal sendbox only accpet the usd payment latter on in live mode it automatically convert the usd in inr
               quantity: item.quantity,
             })),
           },
           amount: {
-            currency: "INR",
+            currency: "USD",
             total: totalAmount.toFixed(2),
           },
           description: "description",
