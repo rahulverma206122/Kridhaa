@@ -95,10 +95,10 @@ function ShoppingCheckout() {
 
   return (
     <div className="flex flex-col">
-      <div className="relative h-[550px] w-full overflow-hidden">
+      <div className="relative h-[550px] xs:h-[300px] w-full overflow-hidden">
         <video
           src={img}
-          className="h-full w-full object-cover object-center"
+          className="h-full w-full xs:object-contain object-cover object-center"
           autoPlay
          // muted
           playsInline

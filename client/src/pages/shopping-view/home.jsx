@@ -131,7 +131,7 @@ function ShoppingHome() {
                 src={slide?.image}
                 className={`${
                   index === currentSlide ? "opacity-100" : "opacity-0"
-                } absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 border-4 border-white rounded-3xl shadow-lg px-2 py-2`}
+                } absolute top-0 left-0 w-full h-full xs:object-contain object-cover transition-opacity duration-1000 border-4 border-white rounded-3xl shadow-lg px-2 py-2`}
                 autoPlay
                 //muted
                 loop
@@ -145,7 +145,7 @@ function ShoppingHome() {
                 alt={`slide-${index}`}
                 className={`${
                   index === currentSlide ? "opacity-100" : "opacity-0"
-                } absolute top-0 left-0 w-full h-full transition-opacity duration-1000 border-4 border-white rounded-3xl shadow-lg px-2 py-2`}
+                } absolute top-0 left-0 w-full h-full xs:object-contain transition-opacity duration-1000 border-4 border-white rounded-3xl shadow-lg px-2 py-2`}
               />
             );
           })
