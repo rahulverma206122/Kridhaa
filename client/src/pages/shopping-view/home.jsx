@@ -37,14 +37,14 @@ const categoriesWithIcon = [
   { id: "men", label: "Men", icon: PersonStanding },
   { id: "women", label: "Women", icon: BookHeart  },
   { id: "kids", label: "Kids", icon: BabyIcon },
-  { id: "accessories", label: "Fine Gold and Silver", icon: RectangleVertical },
+  { id: "coins", label: "Fine Gold and Silver", icon: RectangleVertical },
 ];
 
-const brandsWithIcon = [
-  { id: "nike", label: "18 Kt", icon: BadgeCheck },
-  { id: "adidas", label: "20 Kt", icon: BadgeCheck },
-  { id: "puma", label: "22 Kt", icon: BadgeCheck },
-  { id: "levi", label: "24 Kt", icon: BadgeCheck },
+const caratsWithIcon = [
+  { id: "k18", label: "18 Kt", icon: BadgeCheck },
+  { id: "k20", label: "20 Kt", icon: BadgeCheck },
+  { id: "k22", label: "22 Kt", icon: BadgeCheck },
+  { id: "k24", label: "24 Kt", icon: BadgeCheck },
 ];
 function ShoppingHome() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -64,8 +64,8 @@ function ShoppingHome() {
   function handleNavigateToListingPage(getCurrentItem, section) {
     sessionStorage.removeItem("filters");  // first we clear the session storage mtlb jo bhi filter lga ho phle use clear krdo
     const currentFilter = {
-      [section]: [getCurrentItem.id], //  Create a new filter object  {"brand":[101]}
-    };  // why we use []:It means the key name will be taken from the variable section.jab [] lag jate h to we chez veriable ho jati h agar ye na lage to section hmesa section hi rhega kbhi brand ya catogory nhi bnega
+      [section]: [getCurrentItem.id], //  Create a new filter object  {"carat":[101]}
+    };  // why we use []:It means the key name will be taken from the variable section.jab [] lag jate h to we chez veriable ho jati h agar ye na lage to section hmesa section hi rhega kbhi carat ya catogory nhi bnega
    // [getCurrentItem.id] → can remove [] it rep the array , but only if you don’t need multiple values in that filter.
     sessionStorage.setItem("filters", JSON.stringify(currentFilter)); // Save the new filter object in sessionStorage
     navigate(`/shop/listing`);
@@ -225,14 +225,14 @@ function ShoppingHome() {
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-8">Shop by Hall Mark</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {brandsWithIcon.map((brandItem) => (
+            {caratsWithIcon.map((caratItem) => (
               <Card
-                onClick={() => handleNavigateToListingPage(brandItem, "brand")}
+                onClick={() => handleNavigateToListingPage(caratItem, "carat")}
                 className="cursor-pointer hover:shadow-lg transition-shadow"
               >
                 <CardContent className="flex flex-col items-center justify-center p-6">
-                  <brandItem.icon className="w-12 h-12 mb-4 text-primary" />
-                  <span className="font-bold">{brandItem.label}</span>
+                  <caratItem.icon className="w-12 h-12 mb-4 text-primary" />
+                  <span className="font-bold">{caratItem.label}</span>
                 </CardContent>
               </Card>
             ))}

@@ -2,13 +2,13 @@ const Product = require("../../models/Product");
 
 //This function fetches products from MongoDB based on:
 //Category filter
-//Brand filter
+//carat filter
 //Sorting option (price/title ascending/descending)
 //It then sends the filtered + sorted products back as JSON.
 
 const getFilteredProducts = async (req, res) => {
   try {
-    const { category = [], brand = [], sortBy = "price-lowtohigh" } = req.query;  // query se cat brand sortby liya  // From the request URL, we get category, brand, and sortBy.
+    const { category = [], carat = [], sortBy = "price-lowtohigh" } = req.query;  // query se cat carat sortby liya  // From the request URL, we get category, carat, and sortBy.
 
     let filters = {};
 
@@ -16,8 +16,8 @@ const getFilteredProducts = async (req, res) => {
       filters.category = { $in: category.split(",") };
     }
 
-    if (brand.length) {
-      filters.brand = { $in: brand.split(",") }; 
+    if (carat.length) {
+      filters.carat = { $in: carat.split(",") }; 
     }
 
   let sort = {};
@@ -47,7 +47,7 @@ const getFilteredProducts = async (req, res) => {
         break;
     }
 
-    const products = await Product.find(filters).sort(sort); // Product.find(filters) → gets only those products matching category & brand filters.  .sort(sort) → applies sorting (price or title).
+    const products = await Product.find(filters).sort(sort); // Product.find(filters) → gets only those products matching category & carat filters.  .sort(sort) → applies sorting (price or title).
 
     res.status(200).json({
       success: true,

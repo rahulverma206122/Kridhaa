@@ -1,6 +1,6 @@
 import { Card, CardContent, CardFooter } from "../ui/card";
 import { Button } from "../ui/button";
-import { brandOptionsMap, categoryOptionsMap } from "@/config";
+import { caratOptionsMap, categoryOptionsMap } from "@/config";
 import { Badge } from "../ui/badge";
 
 // ye wala shop view me card ko dikhaege 
@@ -39,7 +39,7 @@ function ShoppingProductTile({
               {categoryOptionsMap[product?.category]}
             </span>
             <span className="text-[16px] text-muted-foreground">
-              {brandOptionsMap[product?.brand]}
+              {caratOptionsMap[product?.carat]}
             </span>
           </div>
           <div className="flex justify-between items-center mb-2">

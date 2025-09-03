@@ -61,18 +61,18 @@ export const addProductFormElements = [
       { id: "men", label: "Men" },
       { id: "women", label: "Women" },
       { id: "kids", label: "Kids" },
-      { id: "accessories", label: "Coins & Bars" },
+      { id: "coins", label: "Coins & Bars" },
     ],
   },
   {
     label: "Carat",
-    name: "brand",
+    name: "carat",
     componentType: "select",
     options: [
-      { id: "nike", label: "18Kt" },
-      { id: "adidas", label: "20Kt" },
-      { id: "puma", label: "22Kt" },
-      { id: "levi", label: "24Kt" },
+      { id: "k18", label: "18Kt" },
+      { id: "k20", label: "20Kt" },
+      { id: "k22", label: "22Kt" },
+      { id: "k24", label: "24Kt" },
     ],
   },
   {
@@ -125,7 +125,7 @@ export const shoppingViewHeaderMenuItems = [
     path: "/shop/listing",
   },
   {
-    id: "accessories",
+    id: "coins",
     label: "Coins & Bars",
     path: "/shop/listing",
   },
@@ -140,14 +140,14 @@ export const categoryOptionsMap = {  // ye hmne isliye bnai h jisse shop ke anda
   men: "Men",
   women: "Women",
   kids: "Kids",
-  accessories: "Coins & Bars",
+  coins: "Coins & Bars",
 };
 
-export const brandOptionsMap = {  // ye hmne isliye bnai h jisse shop ke andar card me nike ho to 18Kt dikhe
-  nike: "18Kt",
-  adidas: "20Kt",
-  puma: "22Kt",
-  levi: "24Kt",
+export const caratOptionsMap = {  // ye hmne isliye bnai h jisse shop ke andar card me k18 ho to 18Kt dikhe
+  k18: "18Kt",
+  k20: "20Kt",
+  k22: "22Kt",
+  k24: "24Kt",
 };
 
 export const filterOptions = {
@@ -155,13 +155,13 @@ export const filterOptions = {
     { id: "men", label: "Men" },
     { id: "women", label: "Women" },
     { id: "kids", label: "Kids" },
-    { id: "accessories", label: "Coins & Bars" },
+    { id: "coins", label: "Coins & Bars" },
   ],
-  brand: [
-    { id: "nike", label: "18Kt" },
-    { id: "adidas", label: "20Kt" },
-    { id: "puma", label: "22Kt" },
-    { id: "levi", label: "24Kt" },
+  carat: [
+    { id: "k18", label: "18Kt" },
+    { id: "k20", label: "20Kt" },
+    { id: "k22", label: "22Kt" },
+    { id: "k24", label: "24Kt" },
   ],
 };
 

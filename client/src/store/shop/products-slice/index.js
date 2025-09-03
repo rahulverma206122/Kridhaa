@@ -9,23 +9,32 @@ const initialState = {
 
 export const fetchAllFilteredProducts = createAsyncThunk(
   "/products/fetchAllProducts",
-  async ({ filterParams, sortParams }) => { // The thunk accepts an object with two properties:filterParams → filters like { category: "Shoes", brand: "Nike" },sortparams
-    console.log(fetchAllFilteredProducts, "fetchAllFilteredProducts"); // When you dispatch, you’ll call:dispatch(fetchAllFilteredProducts({ filterParams: filters, sortParams: sort }));
+  async ({ filterParams, sortParams }) => {
+    const query = new URLSearchParams();
 
-    const query = new URLSearchParams({ // URLSearchParams helps convert objects → query string.
-      ...filterParams,  // see notes   this query and sortby we used in productcontroller.js
-      sortBy: sortParams,
+    // loop through filters
+    Object.entries(filterParams).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        value.forEach((v) => query.append(key, v)); // multiple values => ?carat=k18&category=men
+      } else {
+        query.append(key, value);
+      }
     });
 
+    // add sorting
+    if (sortParams) {
+      query.append("sortBy", sortParams);
+    }
+
     const result = await axios.get(
-      `${import.meta.env.VITE_API_URL}/api/shop/products/get?${query}`
+      `${import.meta.env.VITE_API_URL}/api/shop/products/get?${query.toString()}`
     );
 
-    console.log(result);
-
+    console.log("Final API Request URL:", result.config.url); // ✅ see what we send
     return result?.data;
   }
 );
+
 
 export const fetchProductDetails = createAsyncThunk(
   "/products/fetchProductDetails",

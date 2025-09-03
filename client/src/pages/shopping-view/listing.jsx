@@ -28,12 +28,12 @@ function createSearchParamsHelper(filterParams) {
     if (Array.isArray(value) && value.length > 0) {  // Keys with empty arrays, null, undefined, or non-array values are skipped.
       const paramValue = value.join(",");  // Joins the array items into a single string separated by commas.
 
-      queryParams.push(`${key}=${encodeURIComponent(paramValue)}`);  // Encodes the joined string for safe use in a URL. Important: encodeURIComponent("nike,adidas") will turn the comma into %2C, so the final encoded value becomes "nike%2Cadidas".
+      queryParams.push(`${key}=${encodeURIComponent(paramValue)}`);  // Encodes the joined string for safe use in a URL. Important: encodeURIComponent("k18,k20") will turn the comma into %2C, so the final encoded value becomes "k18%2Ck20".
     }//Adds a key=encodedValue string to the queryParams array 
   }  
 
   return queryParams.join("&"); // Joins all key=value entries with & to create a query-string body like:
-}  //  "brand=nike%2Cadidas&color=red%2Cblue"
+}  //  "carat=k18%2Ck20&color=red%2Cblue"
 
 function ShoppingListing() {
   const dispatch = useDispatch();  // use bcz store se kuch lana h 
@@ -54,7 +54,7 @@ function ShoppingListing() {
 
   function handleFilter(getSectionId, getCurrentOption) {  // getSectionId and getCurrentOption are just parameter names. They are names you (or the code’s author) chose to receive values when the function is called. You can give them any name you want — they’re just placeholders (parameters). When you call this function, you must pass actual values.
     let cpyFilters = { ...filters }; // see this in notes
-    const indexOfCurrentSection = Object.keys(cpyFilters).indexOf(getSectionId); // Checks whether getSectionId (e.g. "brand") exists as a key in filters. Returns -1 if not found.
+    const indexOfCurrentSection = Object.keys(cpyFilters).indexOf(getSectionId); // Checks whether getSectionId (e.g. "carat") exists as a key in filters. Returns -1 if not found.
 
     if (indexOfCurrentSection === -1) {  // mtlb abhi tk koi filter checked nhi kiya h 
       cpyFilters = { // If the section/key doesn't exist yet, it adds a new entry where the value is an array with the clicked option: { ... , [getSectionId]: [getCurrentOption] }.
@@ -121,16 +121,23 @@ function ShoppingListing() {
 
   useEffect(() => {
     if (filters && Object.keys(filters).length > 0) {  // It runs code after render whenever the dependency array ([filters]) changes.Here it means: "Whenever filters state changes → run this effect."
-      const createQueryString = createSearchParamsHelper(filters); // createQueryString becomes:"brand=Nike%2CAdidas&category=Shoes"
+      const createQueryString = createSearchParamsHelper(filters); // createQueryString becomes:"carat=k18%2Ck20&category=Shoes"
       setSearchParams(new URLSearchParams(createQueryString)); // It updates the URL query string in the browser without reloading the page.
     }  //URLSearchParams: It’s a built-in JavaScript Web API class that helps you work with URL query strings (the part after ? in a URL).
   }, [filters]);
 
   useEffect(() => {
-    if (filters !== null && sort !== null)
-      dispatch(fetchAllFilteredProducts({ filterParams: filters, sortParams: sort }) // fetchAllFilteredProducts is a Redux Thunk/async action that fetches products from backend API. it sends:  selected filters (brand, category, etc.) sorting option (price low→high, etc.)
-      );
-  }, [dispatch, sort, filters]);  // So whenever:
+  if (filters !== null && sort !== null) {
+    console.log("Sending filters:", filters);
+    dispatch(
+      fetchAllFilteredProducts({
+        filterParams: filters,
+        sortParams: sort,
+      })
+    );
+  }
+}, [dispatch, sort, filters]);
+ // So whenever:
 //filters changes
 //OR sort changes
 //OR dispatch (which is stable, but still included for good practice)

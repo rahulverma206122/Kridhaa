@@ -14,10 +14,15 @@ const searchProducts = async (req, res) => {
 
     const createSearchQuery = {
       $or: [
+        //{ title: { $regex: new RegExp(`\\b${keyword}\\b`, "i") } },
+        //{ description: { $regex: new RegExp(`\\b${keyword}\\b`, "i") } },
+
         { title: regEx },
         { description: regEx },
+        //{ category: { $regex: new RegExp(`^${keyword}$`, "i") } }, // exact match
+        //{ carat: { $regex: new RegExp(`^${keyword}$`, "i") } },   // exact match
         { category: regEx },
-        { brand: regEx },
+        { carat: regEx },
       ],
     };
 

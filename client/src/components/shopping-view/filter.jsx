@@ -16,7 +16,7 @@ function ProductFilter({ filters, handleFilter }) { // filters and handleFilter 
         {Object.keys(filterOptions).map((keyItem) => (  // filteroption is from config
           <Fragment>
             <div>
-              <h3 className="text-base font-bold">{keyItem}</h3>  {/* keyitem se filter me catogory and brand lkha aaega */}
+              <h3 className="text-base font-bold">{keyItem}</h3>  {/* keyitem se filter me catogory and carat lkha aaega */}
               <div className="grid gap-2 mt-2">
                 {filterOptions[keyItem].map((option) => (  
                   <Label className="flex font-medium items-center gap-2 ">
@@ -24,7 +24,7 @@ function ProductFilter({ filters, handleFilter }) { // filters and handleFilter 
                       checked={  // is a property jo btaega check h y nhi
                         filters &&                                // ✅ only proceed if filters object exists
                         Object.keys(filters).length > 0 &&        // ✅ make sure filters is not empty
-                        filters[keyItem] &&                       // ✅ make sure the specific filter (brand/category) exists
+                        filters[keyItem] &&                       // ✅ make sure the specific filter (carat/category) exists
                         filters[keyItem].indexOf(option.id) > -1  // ✅ check if the option.id exists inside filters[keyItem]
                         // ➡ then the checkbox will be checked (true).
                       }
