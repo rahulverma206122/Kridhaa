@@ -9,9 +9,7 @@ function AdminDashboard() {
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
   const [imageLoadingState, setImageLoadingState] = useState(false);
   const dispatch = useDispatch();
-  const { featureImageList } = useSelector((state) => state.commonFeature);  // featureimagelist ko hmne feature slice se access kiya h
-
-  console.log(uploadedImageUrl, "uploadedImageUrl");
+  const { featureImageList } = useSelector((state) => state.commonFeature);  
 
   function handleUploadFeatureImage() {
     dispatch(addFeatureImage(uploadedImageUrl)).then((data) => {
@@ -27,8 +25,6 @@ function AdminDashboard() {
     dispatch(getFeatureImages());
   }, [dispatch]);
 
-  console.log(featureImageList, "featureImageList");
-
   return (
     <div>
       <ProductImageUpload
@@ -39,21 +35,34 @@ function AdminDashboard() {
         setImageLoadingState={setImageLoadingState}
         imageLoadingState={imageLoadingState}
         isCustomStyling={true}
-        // isEditMode={currentEditedId !== null}
       />
+
       <Button onClick={handleUploadFeatureImage} className="mt-5 w-full">
         Upload
       </Button>
+
       <div className="flex flex-col gap-4 mt-5">
         {featureImageList && featureImageList.length > 0
-          ? featureImageList.map((featureImgItem) => (
-              <div className="relative">
-                <img
-                  src={featureImgItem.image}
-                  className="w-full h-[300px] object-cover rounded-t-lg"
-                />
-              </div>
-            ))
+          ? featureImageList.map((featureImgItem, index) => {
+              const isVideo = featureImgItem?.image?.match(/\.(mp4|webm|ogg)$/i);
+              return (
+                <div key={index} className="relative">
+                  {isVideo ? (
+                    <video
+                      src={featureImgItem.image}
+                      className="w-full h-[300px] object-cover rounded-t-lg"
+                      controls
+                    />
+                  ) : (
+                    <img
+                      src={featureImgItem.image}
+                      className="w-full h-[300px] object-cover rounded-t-lg"
+                      alt="Uploaded media"
+                    />
+                  )}
+                </div>
+              );
+            })
           : null}
       </div>
     </div>

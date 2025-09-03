@@ -1,5 +1,6 @@
 import Address from "@/components/shopping-view/address";
-import img from "../../assets/video.mp4";
+import img from "../../assets/aa.mp4";
+
 import { useDispatch, useSelector } from "react-redux";
 import UserCartItemsContent from "@/components/shopping-view/cart-items-content";
 import { Button } from "@/components/ui/button";
@@ -95,16 +96,22 @@ function ShoppingCheckout() {
 
   return (
     <div className="flex flex-col">
-      <div className="relative h-[550px] xs:h-[300px] w-full overflow-hidden">
-        <video
-          src={img}
-          className="h-full w-full xs:object-contain object-cover object-center"
-          autoPlay
-         // muted
-          playsInline
-        />
- {/** object- cover hata diya h hmne */}
-      </div>
+      {/* Video Banner */}
+        <div className="relative w-full overflow-hidden">
+          <video
+            src={img}
+            className="w-full h-auto object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+          />
+
+          {/* Gradient overlay (fade bottom into white) */}
+          <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-b from-transparent to-white pointer-events-none"></div>
+        </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5 p-4">
         <Address
           selectedId={currentSelectedAddress}
