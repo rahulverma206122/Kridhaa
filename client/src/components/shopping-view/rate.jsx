@@ -27,15 +27,15 @@ const Rate = () => {
     };
 
     fetchRates();
-    const interval = setInterval(fetchRates, 5000); // auto refresh every 10s
+    const interval = setInterval(fetchRates, 10000); // auto refresh every 10s
     return () => clearInterval(interval);
   }, [rates]);
 
   const getChangeClass = (label, price) => {
     const prev = prevRates[label];
     if (!prev) return "";
-    if (Number(price) > Number(prev)) return "bg-green-300 text-green-700";
-    if (Number(price) < Number(prev)) return "bg-red-300 text-red-700";
+    if (Number(price) > Number(prev)) return "bg-green-400 text-green-700";
+    if (Number(price) < Number(prev)) return "bg-red-400 text-red-700";
     return "";
   };
 
@@ -59,8 +59,8 @@ const Rate = () => {
                 <p className="text-2xl font-bold text-yellow-700">
                   ₹ {rate.price}
                 </p>
-                <span className="flex items-center text-red-500 text-xs font-bold animate-pulse">
-                  <span className="w-2 h-2 bg-red-500 rounded-full mr-1"></span>
+                <span className="flex items-center text-red-600 text-xs font-bold animate-pulse">
+                  <span className="w-2 h-2 bg-red-600 rounded-full mr-1"></span>
                   LIVE
                 </span>
               </div>

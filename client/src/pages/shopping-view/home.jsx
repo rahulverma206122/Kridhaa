@@ -26,7 +26,7 @@ import p6 from "../../assets/p6.webp";
 import p7 from "../../assets/p7.webp";
 
 import { motion } from "framer-motion";
-import Footer from "../../components/shopping-view/Footer"
+import Footer from "../../components/shopping-view/footer";
 import Rate from "../../components/shopping-view/rate";
 
 
@@ -504,11 +504,9 @@ function ShoppingHome() {
         productDetails={productDetails}
       />
 
-       <div>
-      {/* your homepage content here */}
-
-      <Footer />
-    </div>
+          <div>
+          <Footer />
+          </div>
     </div>
   );
 }
