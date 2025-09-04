@@ -1,5 +1,34 @@
 import { Button } from "@/components/ui/button";
-import img from "../../assets/KR.png";
+import imgg from "../../assets/KR.png";
+import img from "../../assets/aa.mp4";
+import kidsImg from "../../assets/kids.webp";
+import anklet from "../../assets/anklets.webp";
+import coin from "../../assets/coins.webp";
+import women from "../../assets/women.webp";
+import men from "../../assets/mens.webp";
+import ring from "../../assets/rings.webp";
+import toe from "../../assets/toe.png";
+import h from "../../assets/h1.png";
+import of from "../../assets/gms.webp";
+import v1 from "../../assets/v1.mp4";
+import v2 from "../../assets/v2.mp4";
+import v3 from "../../assets/v3.mp4";
+import v4 from "../../assets/v4.mp4";
+import v5 from "../../assets/v5.mp4";
+import v6 from "../../assets/v6.mp4";
+import v7 from "../../assets/v7.mp4";
+import p1 from "../../assets/p1.webp";
+import p2 from "../../assets/p2.png";
+import p3 from "../../assets/p3.webp";
+import p4 from "../../assets/p4.webp";
+import p5 from "../../assets/p5.webp";
+import p6 from "../../assets/p6.webp";
+import p7 from "../../assets/p7.webp";
+
+import { motion } from "framer-motion";
+import Footer from "../../components/shopping-view/Footer"
+
+
 import {
   Airplay,
   BabyIcon,
@@ -34,18 +63,34 @@ import ProductDetailsDialog from "@/components/shopping-view/product-details";
 import { getFeatureImages } from "@/store/common-slice";
 
 const categoriesWithIcon = [
-  { id: "men", label: "Men", icon: PersonStanding },
-  { id: "women", label: "Women", icon: BookHeart  },
-  { id: "kids", label: "Kids", icon: BabyIcon },
-  { id: "coins", label: "Fine Gold and Silver", icon: RectangleVertical },
+  { id: "men", label: "Men", image: men },
+  { id: "women", label: "Women", image: women },
+  { id: "kids", label: "Kids", image: kidsImg},  
+  { id: "coins", label: "Coins & Bars", image: coin},
+  {id: "anklets", label: "Anklets", image:anklet},
+  {id: "rings", label: "Silver Rings", image:ring},
+  {id: "toerings", label: "Toe Rings", image:toe},
 ];
 
 const caratsWithIcon = [
-  { id: "k18", label: "18 Kt", icon: BadgeCheck },
-  { id: "k20", label: "20 Kt", icon: BadgeCheck },
-  { id: "k22", label: "22 Kt", icon: BadgeCheck },
-  { id: "k24", label: "24 Kt", icon: BadgeCheck },
+  { id: "k18", label: "18 K", image: h },
+  { id: "k20", label: "20 K", image: h },
+  { id: "k22", label: "22 K", image: h },
+  { id: "k24", label: "24 K", image: h },
+  { id: "silver", label: "92.5", image: h },
 ];
+const videoWithIcon = [
+  { id: "v1", label: "", video: v6 },
+  { id: "v2", label: "", video: v2 },
+  { id: "v3", label: "", video: v3 },
+  { id: "v4", label: "", video: v7 },
+  { id: "v5", label: "", video: v5 },
+  { id: "v6", label: "", video: v1 },
+  { id: "v7", label: "", video: v4 },
+];
+
+
+
 function ShoppingHome() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { productList, productDetails } = useSelector(
@@ -118,9 +163,133 @@ function ShoppingHome() {
     dispatch(getFeatureImages());
   }, [dispatch]);
 
+
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2, // delay between children
+      },
+    },
+  };
+
+  const item = {
+    hidden: { opacity: 0, x: -50 }, // start off-screen left
+    show: { opacity: 1, x: 0 },     // fade in + slide to place
+  };
+
+
+
   return (
+
     <div className="flex flex-col min-h-screen">
-      <div className="relative w-full h-[600px] overflow-hidden">
+
+      <div className="relative w-full overflow-hidden">
+                <video
+                  src={img}
+                  className="w-full h-auto object-cover"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
+                />
+      
+                {/* Gradient overlay (fade bottom into white) */}
+                <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-b from-transparent to-white pointer-events-none"></div>
+              </div>
+                
+          <section className="py-10 bg-white">
+                <div className="container mx-auto px-4">
+                  <h2 className="text-3xl font-bold text-center mb-8">
+                    Shop by Category </h2>
+
+                  <motion.div
+                    className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-0"
+                    variants={container}
+                    initial="hidden"
+                    whileInView="show" // animate only when in view
+                    viewport={{ once: true, amount: 0.2 }} // trigger when 20% of section is visible
+                  >
+                    {categoriesWithIcon.map((categoryItem) => (
+                      <motion.div key={categoryItem.id} variants={item}>
+                        <div className="flex flex-col items-center">
+                          <Card
+                            onClick={() =>
+                              handleNavigateToListingPage(categoryItem, "category")
+                            }
+                            className="cursor-pointer hover:shadow-lg transition-shadow 
+                                      rounded-2xl bg-amber-50/40 flex items-center justify-center 
+                                      border border-pink-200 w-[175px] h-[175px]"
+                          >
+                            <CardContent className="flex items-center justify-center">
+                              {categoryItem.image ? (
+                                <img
+                                  src={categoryItem.image}
+                                  alt={categoryItem.label}
+                                  className="wfull h-full object-cover"
+                                />
+                              ) : (
+                                <categoryItem.icon className="w-20 h-20 text-slate-600" />
+                              )}
+                            </CardContent>
+                          </Card>
+                          <span className="text-gray-500 font-medium mt-3 text-lg">
+                            {categoryItem.label}
+                          </span>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                </div>
+              </section>
+
+          <section className="py-0 bg-white">
+            <div className="container mx-auto px-4">
+              <h2 className="text-3xl font-bold text-center mb-8">Shop by Hall Mark</h2>
+
+              <motion.div
+                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8"
+                variants={container}
+                initial="hidden"
+                whileInView="show"   // animate only when visible
+                viewport={{ once: true, amount: 0.2 }} // trigger when 20% visible
+              >
+                {caratsWithIcon.map((caratItem) => (
+                  <motion.div key={caratItem.id} variants={item}>
+                    <div className="flex flex-col items-center">
+                      <Card
+                        onClick={() => handleNavigateToListingPage(caratItem, "carat")}
+                        className="cursor-pointer hover:shadow-lg transition-shadow 
+                                  rounded-2xl bg-amber-50/40 flex items-center justify-center border border-pink-200
+                                  w-[250px] h-[150px]"
+                      >
+                        <CardContent className="flex items-center justify-center">
+                          {caratItem.image ? (
+                            <img
+                              src={caratItem.image}
+                              alt={caratItem.label}
+                              className="w-24 h-24 object-contain"
+                            />
+                          ) : (
+                            <caratItem.icon className="w-20 h-20 mt-3 text-slate-500" />
+                          )}
+                        </CardContent>
+                      </Card>
+                      {/* label outside card */}
+                      <span className="text-gray-500 font-medium mt-3 text-xl">
+                        {caratItem.label}
+                      </span>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </div>
+          </section>
+
+
+      <div className="relative mt-12 w-full h-[530px] overflow-hidden">
 
         {featureImageList && featureImageList.length > 0
         ? featureImageList.map((slide, index) => {
@@ -197,57 +366,106 @@ function ShoppingHome() {
         >
           <ChevronRightIcon className="w-4 h-4" />
         </Button>
-      </div>
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-8">
-            Shop by category
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {categoriesWithIcon.map((categoryItem) => (
-              <Card
-                onClick={() =>
-                  handleNavigateToListingPage(categoryItem, "category")
-                }
-                className="cursor-pointer hover:shadow-lg transition-shadow"
-              >
-                <CardContent className="flex flex-col items-center justify-center p-6">
-                  <categoryItem.icon className="w-12 h-12 mb-4 text-primary" />
-                  <span className="font-bold">{categoryItem.label}</span>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+      </div> 
 
-      <section className="py-2 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-8">Shop by Hall Mark</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {caratsWithIcon.map((caratItem) => (
-              <Card
-                onClick={() => handleNavigateToListingPage(caratItem, "carat")}
-                className="cursor-pointer hover:shadow-lg transition-shadow"
-              >
-                <CardContent className="flex flex-col items-center justify-center p-6">
-                  <caratItem.icon className="w-12 h-12 mb-4 text-primary" />
-                  <span className="font-bold">{caratItem.label}</span>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      <div className="relative h-[460px] w-full overflow-hidden">
+            <section className="py-8 mt-10 bg-white">
+            <div className="w-full">
+              <div className="flex flex-nowrap gap-1 overflow-x-auto scrollbar">
+                {videoWithIcon.map((videoItem) => (
+                  <div key={videoItem.id} className="flex flex-col items-center flex-shrink-0">
+                    <Card
+                      onClick={() => handleNavigateToListingPage(videoItem, "carat")}
+                      className="cursor-pointer hover:shadow-lg transition-shadow 
+                                rounded-lg bg-amber-50/40 flex items-center justify-center 
+                                border border-pink-200 w-[250px] h-[400px] overflow-hidden"
+                    >
+                      {/* ✅ CardContent must stretch full */}
+                      <CardContent className="w-full h-full p-0">
+                        {videoItem.video ? (
+                          <video
+                            src={videoItem.video}
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            className="w-full h-full object-cover"
+                          />
+                        ) : videoItem.image ? (
+                          <img
+                            src={videoItem.image}
+                            alt={videoItem.label}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-slate-500">No media</span>
+                        )}
+                      </CardContent>
+                    </Card>
+                    <span className="text-gray-500 font-medium mt-3 text-xl">
+                      {videoItem.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+
+       <div className="relative h-[170px] mt-4 w-full overflow-hidden">
           <img 
-          src={img} 
+          src={of} 
           className="h-full w-full mt-8 object-center"
           />
       </div>
 
-      <section className="py-12">
+
+              <section className="py-10 bg-white">
+          <h2 className="text-2xl font-bold  text-center mb-6">Editorial</h2>
+
+          <div
+            className="w-[100%] mx-auto grid grid-cols-6 gap-5">
+
+            {/* Big Item 1 */}
+            <div className="col-span-3 row-span-2 h-[620px] ml-5 rounded-xl overflow-hidden">
+              <img src={p2} 
+                className="w-full h-full object-bottom rounded-xl transition-transform duration-1000 hover:scale-110"      
+              />
+            </div>
+              
+              <div
+              className=" col-span-3 grid grid-cols-3 gap-5"  >
+                        
+            <div className="rounded-xl h-[300px] ">
+              <img src={p1} 
+              className="w-full h-full object-cover rounded-xl transition-transform duration-1000 hover:scale-110"  />
+            </div>
+            <div className="rounded-xl">
+              <img src={p7} 
+              className="w-full h-full object-cover rounded-xl transition-transform duration-1000 hover:scale-110"  />
+            </div>
+            <div className=" rounded-xl mr-3">
+              <img src={p3} 
+              className="w-full h-full object-cover rounded-xl transition-transform duration-1000 hover:scale-110"  />
+            </div>
+          <div className=" rounded-xl h-[300px]">
+              <img src={p4} 
+              className="w-full h-full object-cover rounded-xl transition-transform duration-1000 hover:scale-110"  />
+            </div>
+          <div className=" rounded-xl">
+              <img src={p5} 
+              className="w-full h-full object-cover rounded-xl transition-transform duration-1000 hover:scale-110"  />
+            </div>
+            <div className=" rounded-xl mr-3">
+              <img src={p6} 
+              className="w-full h-full object-cover rounded-xl transition-transform duration-1000 hover:scale-110"  />
+            </div>
+              </div>
+          </div>
+        </section>
+
+
+       <section className="py-1 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mt-6 mb-8">
             Feature Products
@@ -265,11 +483,25 @@ function ShoppingHome() {
           </div>
         </div>
       </section>
+
+        <div className="relative h-[460px] w-full overflow-hidden">
+          <img 
+          src={imgg} 
+          className="h-full w-full mt-8 object-center"
+          />
+      </div>
+
       <ProductDetailsDialog
         open={openDetailsDialog}
         setOpen={setOpenDetailsDialog}
         productDetails={productDetails}
       />
+
+       <div>
+      {/* your homepage content here */}
+
+      <Footer />
+    </div>
     </div>
   );
 }

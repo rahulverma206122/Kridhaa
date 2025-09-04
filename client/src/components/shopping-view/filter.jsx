@@ -16,7 +16,7 @@ function ProductFilter({ filters, handleFilter }) { // filters and handleFilter 
         {Object.keys(filterOptions).map((keyItem) => (  // filteroption is from config
           <Fragment>
             <div>
-              <h3 className="text-base font-bold">{keyItem}</h3>  {/* keyitem se filter me catogory and carat lkha aaega */}
+              <h3 className="text-xl font-bold">{keyItem}</h3>  {/* keyitem se filter me catogory and carat lkha aaega */}
               <div className="grid gap-2 mt-2">
                 {filterOptions[keyItem].map((option) => (  
                   <Label className="flex font-medium items-center gap-2 ">

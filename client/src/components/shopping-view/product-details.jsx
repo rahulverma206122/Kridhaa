@@ -149,7 +149,7 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) { // use this i
               </Button>
             ) : (
               <Button
-                className="w-full"
+                className="w-full bg-blue-900"
                 onClick={() =>
                   handleAddToCart(
                     productDetails?._id,
@@ -206,6 +206,7 @@ function ProductDetailsDialog({ open, setOpen, productDetails }) { // use this i
               />
               <Button
                 onClick={handleAddReview}
+                className="bg-blue-900"
                 disabled={reviewMsg.trim() === ""} // see notes
               >
                 Submit

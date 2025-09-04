@@ -1,5 +1,5 @@
 import Address from "@/components/shopping-view/address";
-import img from "../../assets/aa.mp4";
+import img from "../../assets/aaa.mp4";
 
 import { useDispatch, useSelector } from "react-redux";
 import UserCartItemsContent from "@/components/shopping-view/cart-items-content";
@@ -100,7 +100,7 @@ function ShoppingCheckout() {
         <div className="relative w-full overflow-hidden">
           <video
             src={img}
-            className="w-full h-auto object-cover"
+            className="w-[1535px] h-[550px] object-cover"
             autoPlay
             muted
             loop
@@ -109,7 +109,7 @@ function ShoppingCheckout() {
           />
 
           {/* Gradient overlay (fade bottom into white) */}
-          <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-b from-transparent to-white pointer-events-none"></div>
+          <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-gradient-to-b from-transparent to-white pointer-events-none"></div>
         </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5 p-4">

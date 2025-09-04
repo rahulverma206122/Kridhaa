@@ -1,8 +1,9 @@
 import ProductImageUpload from "@/components/admin-view/image-upload";
 import { Button } from "@/components/ui/button";
-import { addFeatureImage, getFeatureImages } from "@/store/common-slice";
+import { addFeatureImage, getFeatureImages, deleteFeatureImage } from "@/store/common-slice";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Separator } from "@/components/ui/separator";  // ✅ import separator
 
 function AdminDashboard() {
   const [imageFile, setImageFile] = useState(null);
@@ -20,6 +21,17 @@ function AdminDashboard() {
       }
     });
   }
+
+      const handleDelete = (id) => {
+      dispatch(deleteFeatureImage(id)).then((action) => {
+      if (action?.payload?.success) {
+        dispatch(getFeatureImages()); // refresh list
+      } else {
+        console.error("Delete failed:", action?.payload);
+      }
+    });
+  };
+
 
   useEffect(() => {
     dispatch(getFeatureImages());
@@ -40,13 +52,16 @@ function AdminDashboard() {
       <Button onClick={handleUploadFeatureImage} className="mt-5 w-full">
         Upload
       </Button>
-
+       
+       <Separator className="my-5 bg-black" />
+      
+       <div  className="bg-background mt-8 text-center font-bold text-2xl">Uploaded Images and Videos</div> 
       <div className="flex flex-col gap-4 mt-5">
         {featureImageList && featureImageList.length > 0
           ? featureImageList.map((featureImgItem, index) => {
               const isVideo = featureImgItem?.image?.match(/\.(mp4|webm|ogg)$/i);
               return (
-                <div key={index} className="relative">
+                <div key={featureImgItem._id} className="relative">
                   {isVideo ? (
                     <video
                       src={featureImgItem.image}
@@ -60,6 +75,11 @@ function AdminDashboard() {
                       alt="Uploaded media"
                     />
                   )}
+                  <Button
+                  className = "w-full mt-1 text-red-400 text-xl mb-5 mx-auto block"
+                  onClick={() => handleDelete(featureImgItem._id)}>
+                    Delete
+                  </Button>
                 </div>
               );
             })

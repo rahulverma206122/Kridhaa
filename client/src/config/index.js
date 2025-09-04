@@ -62,6 +62,8 @@ export const addProductFormElements = [
       { id: "women", label: "Women" },
       { id: "kids", label: "Kids" },
       { id: "coins", label: "Coins & Bars" },
+      { id: "anklets", label: "Anklets" },
+      { id: "toerings", label: "Toe Rings" },
     ],
   },
   {
@@ -69,10 +71,11 @@ export const addProductFormElements = [
     name: "carat",
     componentType: "select",
     options: [
-      { id: "k18", label: "18Kt" },
-      { id: "k20", label: "20Kt" },
-      { id: "k22", label: "22Kt" },
-      { id: "k24", label: "24Kt" },
+      { id: "k18", label: "18K" },
+      { id: "k20", label: "20K" },
+      { id: "k22", label: "22K" },
+      { id: "k24", label: "24K" },
+      { id: "silver", label: "92.5" },
     ],
   },
   {
@@ -141,6 +144,8 @@ export const categoryOptionsMap = {  // ye hmne isliye bnai h jisse shop ke anda
   women: "Women",
   kids: "Kids",
   coins: "Coins & Bars",
+  anklets: "Anklets",
+  toerings: "Toe Rings"
 };
 
 export const caratOptionsMap = {  // ye hmne isliye bnai h jisse shop ke andar card me k18 ho to 18Kt dikhe
@@ -148,6 +153,7 @@ export const caratOptionsMap = {  // ye hmne isliye bnai h jisse shop ke andar c
   k20: "20Kt",
   k22: "22Kt",
   k24: "24Kt",
+  silver: "92.5",
 };
 
 export const filterOptions = {
@@ -156,12 +162,15 @@ export const filterOptions = {
     { id: "women", label: "Women" },
     { id: "kids", label: "Kids" },
     { id: "coins", label: "Coins & Bars" },
+    { id: "anklets", label: "Anklets" },
+    { id: "toerings", label: "Toe Rings" },
   ],
   carat: [
-    { id: "k18", label: "18Kt" },
-    { id: "k20", label: "20Kt" },
-    { id: "k22", label: "22Kt" },
-    { id: "k24", label: "24Kt" },
+    { id: "k18", label: "18K" },
+    { id: "k20", label: "20K" },
+    { id: "k22", label: "22K" },
+    { id: "k24", label: "24K" },
+    { id: "silver", label: "92.5" },
   ],
 };
 
