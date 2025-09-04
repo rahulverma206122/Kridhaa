@@ -27,6 +27,7 @@ import p7 from "../../assets/p7.webp";
 
 import { motion } from "framer-motion";
 import Footer from "../../components/shopping-view/Footer"
+import Rate from "../../components/shopping-view/rate";
 
 
 import {
@@ -289,6 +290,13 @@ function ShoppingHome() {
           </section>
 
 
+          <div>
+          {/* Other sections */}
+          <Rate />
+          {/* Footer, etc. */}
+          </div>
+
+
       <div className="relative mt-12 w-full h-[530px] overflow-hidden">
 
         {featureImageList && featureImageList.length > 0
@@ -302,12 +310,11 @@ function ShoppingHome() {
                 className={`${
                   index === currentSlide ? "opacity-100" : "opacity-0"
                 } absolute top-0 left-0 w-full h-full xs:object-contain object-cover transition-opacity duration-1000 border-4 border-white rounded-3xl shadow-lg px-2 py-2`}
-                autoPlay
-                //muted
-                loop
-                playsInline
-                controls
-                preload="auto"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="auto"
                 
               />
             ) : (
