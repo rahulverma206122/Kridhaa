@@ -181,6 +181,7 @@ export const sortOptions = [
   { id: "title-ztoa", label: "Title: Z to A" },
 ];
 
+
 export const addressFormControls = [
   {
     label: "Address",
@@ -196,6 +197,22 @@ export const addressFormControls = [
     type: "text",
     placeholder: "Enter your city",
   },
+  {
+    label: "State",
+    name: "state",
+    componentType: "autocomplete",
+    type: "text",
+    placeholder: "Enter your state",
+    options: [
+    "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+    "Delhi", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand",
+    "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur",
+    "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab",
+    "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura",
+    "Uttar Pradesh", "Uttarakhand", "West Bengal", "Jammu & Kashmir"
+  ],
+  },
+
   {
     label: "Pincode",
     name: "pincode",

@@ -1,10 +1,10 @@
 const Address = require("../../models/Address");
 
 const addAddress = async (req, res) => {
-  try {
-    const { userId, address, city, pincode, phone, notes } = req.body;
+  try {  
+    const { userId, address, city, state, pincode, phone, notes } = req.body;
 
-    if (!userId || !address || !city || !pincode || !phone || !notes) {
+    if (!userId || !address || !city || !state || !pincode || !phone || !notes) {
       return res.status(400).json({
         success: false,
         message: "Invalid data provided!",
@@ -15,6 +15,7 @@ const addAddress = async (req, res) => {
       userId,
       address,
       city,
+      state,
       pincode,
       notes,
       phone,

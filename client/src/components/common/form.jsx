@@ -24,87 +24,82 @@ function CommonForm({
 
     switch (getControlItem.componentType) {
       case "input":
-  if (getControlItem.name === "phone") {
-    // Special case for phone number
-    element = (
-      <Input
-        name={getControlItem.name}
-        placeholder={getControlItem.placeholder}
-        id={getControlItem.name}
-        type="text"
-        maxLength={10}
-        value={value}
-        onChange={(event) => {
-          const newValue = event.target.value;
-          // only allow digits
-          if (/^\d*$/.test(newValue) && newValue.length <= 10) {
-            setFormData({
-              ...formData,
-              [getControlItem.name]: newValue,
-            });
-          }
-        }}
-        onBlur={() => {
-          if (value.length !== 10) {
-            alert("Phone number must be exactly 10 digits");
-            setFormData({
-              ...formData,
-              [getControlItem.name]: "",
-            });
-          }
-        }}
-      />
-    );
-  } else if (getControlItem.name === "pincode") {
-    // Special case for pincode
-    element = (
-      <Input
-        name={getControlItem.name}
-        placeholder={getControlItem.placeholder}
-        id={getControlItem.name}
-        type="text"
-        maxLength={6}
-        value={value}
-        onChange={(event) => {
-          const newValue = event.target.value;
-          // only allow digits, max 6
-          if (/^\d*$/.test(newValue) && newValue.length <= 6) {
-            setFormData({
-              ...formData,
-              [getControlItem.name]: newValue,
-            });
-          }
-        }}
-        onBlur={() => {
-          if (value.length !== 6) {
-            alert("Pincode must be exactly 6 digits");
-            setFormData({
-              ...formData,
-              [getControlItem.name]: "",
-            });
-          }
-        }}
-      />
-    );
-  } else {
-    // Normal input
-    element = (
-      <Input
-        name={getControlItem.name}
-        placeholder={getControlItem.placeholder}
-        id={getControlItem.name}
-        type={getControlItem.type}
-        value={value}
-        onChange={(event) =>
-          setFormData({
-            ...formData,
-            [getControlItem.name]: event.target.value,
-          })
+        if (getControlItem.name === "phone") {
+          element = (
+            <Input
+              name={getControlItem.name}
+              placeholder={getControlItem.placeholder}
+              id={getControlItem.name}
+              type="text"
+              maxLength={10}
+              value={value}
+              onChange={(event) => {
+                const newValue = event.target.value;
+                if (/^\d*$/.test(newValue) && newValue.length <= 10) {
+                  setFormData({
+                    ...formData,
+                    [getControlItem.name]: newValue,
+                  });
+                }
+              }}
+              onBlur={() => {
+                if (value.length !== 10) {
+                  alert("Phone number must be exactly 10 digits");
+                  setFormData({
+                    ...formData,
+                    [getControlItem.name]: "",
+                  });
+                }
+              }}
+            />
+          );
+        } else if (getControlItem.name === "pincode") {
+          element = (
+            <Input
+              name={getControlItem.name}
+              placeholder={getControlItem.placeholder}
+              id={getControlItem.name}
+              type="text"
+              maxLength={6}
+              value={value}
+              onChange={(event) => {
+                const newValue = event.target.value;
+                if (/^\d*$/.test(newValue) && newValue.length <= 6) {
+                  setFormData({
+                    ...formData,
+                    [getControlItem.name]: newValue,
+                  });
+                }
+              }}
+              onBlur={() => {
+                if (value.length !== 6) {
+                  alert("Pincode must be exactly 6 digits");
+                  setFormData({
+                    ...formData,
+                    [getControlItem.name]: "",
+                  });
+                }
+              }}
+            />
+          );
+        } else {
+          element = (
+            <Input
+              name={getControlItem.name}
+              placeholder={getControlItem.placeholder}
+              id={getControlItem.name}
+              type={getControlItem.type}
+              value={value}
+              onChange={(event) =>
+                setFormData({
+                  ...formData,
+                  [getControlItem.name]: event.target.value,
+                })
+              }
+            />
+          );
         }
-      />
-    );
-  }
-  break;
+        break;
 
       case "select":
         element = (
@@ -121,13 +116,12 @@ function CommonForm({
               <SelectValue placeholder={getControlItem.label} />
             </SelectTrigger>
             <SelectContent>
-              {getControlItem.options && getControlItem.options.length > 0
-                ? getControlItem.options.map((optionItem) => (
-                    <SelectItem key={optionItem.id} value={optionItem.id}>
-                      {optionItem.label}
-                    </SelectItem>
-                  ))
-                : null}
+              {getControlItem.options &&
+                getControlItem.options.map((optionItem) => (
+                  <SelectItem key={optionItem} value={optionItem}>
+                    {optionItem}
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
         );
@@ -147,6 +141,32 @@ function CommonForm({
               })
             }
           />
+        );
+        break;
+
+      case "autocomplete": // this is only for suggest for states 
+        element = (
+          <div className="relative">
+            <Input
+              list={getControlItem.name + "-list"}
+              name={getControlItem.name}
+              placeholder={getControlItem.placeholder}
+              id={getControlItem.name}
+              value={value}
+              onChange={(event) =>
+                setFormData({
+                  ...formData,
+                  [getControlItem.name]: event.target.value,
+                })
+              }
+            />
+            <datalist id={getControlItem.name + "-list"}>
+              {getControlItem.options &&
+                getControlItem.options.map((option, index) => (
+                  <option key={index} value={option} />
+                ))}
+            </datalist>
+          </div>
         );
         break;
 

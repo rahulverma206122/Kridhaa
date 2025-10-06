@@ -57,7 +57,7 @@ function MenuItems() {
       {shoppingViewHeaderMenuItems.map((menuItem) => ( // {/* this comes from config ke andar index.js */}
         <Label
           onClick={() => handleNavigate(menuItem)}
-          className=" font-medium text-base cursor-pointer"
+          className=" font-medium text-base cursor-pointer transition-transform duration-200 hover:scale-125 hover:text-red-400"
           key={menuItem.id}
         >
           {menuItem.label}
@@ -85,15 +85,16 @@ function HeaderRightContent() {
     dispatch(fetchCartItems(user?.id));
   }, [dispatch]);
 
-
+  
   return (
+
     <div className="flex lg:items-center lg:flex-row flex-col gap-7">
       <Sheet open={openCartSheet} onOpenChange={() => setOpenCartSheet(false)}>
         <Button
           onClick={() => setOpenCartSheet(true)}
           variant="outline"
           size="icon"
-          className="relative"
+          className="relative transition-transform duration-100 hover:scale-125"
         >
           <ShoppingCart className="w-6 h-6" />
           <span className="absolute top-[-5px] right-[2px] font-bold text-sm">
@@ -113,7 +114,7 @@ function HeaderRightContent() {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Avatar className="bg-black">
+          <Avatar className="bg-black transition-transform duration-100 hover:scale-125">
             <AvatarFallback className="bg-black text-white font-extrabold">
               {user?.userName[0].toUpperCase()}
             </AvatarFallback>
@@ -137,15 +138,41 @@ function HeaderRightContent() {
   );
 }
 
+
+
+
+
+
 function ShoppingHeader() {
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  // const { isAuthenticated } = useSelector((state) => state.auth);
+
+  // const [isScrolled, setIsScrolled] = useState(false);
+
+  // useEffect(() => {
+  //   const handleScroll = () => {
+  //     setIsScrolled(window.scrollY > 50);
+  //   };
+
+  //   window.addEventListener("scroll", handleScroll);
+  //   return () => window.removeEventListener("scroll", handleScroll);
+  // }, []);
+
+  // <header  replace this with header after return 
+  //     className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
+  //       isScrolled
+  //         ? "bg-white/40 backdrop-blur-md shadow-md"
+  //         : "bg-white shadow-none"
+  //     }`}
+  //   > 
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background">
+
+    <header className= "fixed top-0 left-0 w-full z-50 border-b bg-background">
+    
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
         <Link to="/shop/home" className="flex items-center gap-2">
           <img
-           className="h-[62px] w-[250px]  text-white rounded-full"
+           className="h-[62px] w-[250px] rounded-full transition-transform duration-100 hover:scale-75"
            src={logo} />
           {/* <span className="font-bold  text-xl">Kridha Jewellers</span> */}
         </Link>

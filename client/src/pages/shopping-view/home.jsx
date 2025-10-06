@@ -24,6 +24,7 @@ import p4 from "../../assets/p4.webp";
 import p5 from "../../assets/p5.webp";
 import p6 from "../../assets/p6.webp";
 import p7 from "../../assets/p7.webp";
+import blue from "../../assets/blue.mp4";
 
 import { motion } from "framer-motion";
 import Footer from "../../components/shopping-view/footer";
@@ -428,17 +429,26 @@ function ShoppingHome() {
 
 
               <section className="py-10 bg-white">
-          <h2 className="text-2xl font-bold  text-center mb-6">Editorial</h2>
+          <h2 className="text-2xl font-bold text-center mb-6">Editorial</h2>
 
           <div
             className="w-[100%] mx-auto grid grid-cols-6 gap-5">
 
             {/* Big Item 1 */}
-            <div className="col-span-3 row-span-2 h-[620px] ml-5 rounded-xl overflow-hidden">
-              <img src={p2} 
-                className="w-full h-full object-bottom rounded-xl transition-transform duration-1000 hover:scale-110"      
+            <div className="col-span-3 row-span-2 ml-5 rounded-xl overflow-hidden">
+            <div className="relative w-full pb-[84%] rounded-xl overflow-hidden"> 
+              {/* 56.25% = 16:9 aspect ratio, adjust if your video has different ratio */}
+              <video 
+                src={blue} 
+                autoPlay
+                loop
+                playsInline
+                controls
+                muted
+                className="absolute top-0 left-0 w-full h-full object-fill rounded-xl"
               />
             </div>
+          </div>
               
               <div
               className=" col-span-3 grid grid-cols-3 gap-5"  >

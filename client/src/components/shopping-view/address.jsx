@@ -15,6 +15,7 @@ import { useToast } from "../ui/use-toast";
 const initialAddressFormData = {
   address: "",   // suru me ye sb field khali aaegi
   city: "",
+  state:"",
   phone: "",
   pincode: "",
   notes: "",
@@ -93,6 +94,7 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
       ...formData,  // pass the info of form first as we click on edit
       address: getCuurentAddress?.address,  // adress ke andar current add ka data 
       city: getCuurentAddress?.city,
+      state: getCuurentAddress?.state,
       phone: getCuurentAddress?.phone,
       pincode: getCuurentAddress?.pincode,
       notes: getCuurentAddress?.notes,

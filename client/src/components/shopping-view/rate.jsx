@@ -35,8 +35,8 @@ const Rate = () => {
   const getChangeClass = (label, price) => {
     const prev = prevRates[label];
     if (!prev) return "";
-    if (Number(price) > Number(prev)) return "bg-green-400 text-green-700";
-    if (Number(price) < Number(prev)) return "bg-red-400 text-red-700";
+    if (Number(price) > Number(prev)) return "bg-green-500 text-green-700";
+    if (Number(price) < Number(prev)) return "bg-red-500 text-red-700";
     return "";
   };
 

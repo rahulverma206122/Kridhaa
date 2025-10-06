@@ -66,6 +66,7 @@ function ShoppingCheckout() {
         addressId: currentSelectedAddress?._id,
         address: currentSelectedAddress?.address,
         city: currentSelectedAddress?.city,
+        state:currentSelectedAddress?.state,
         pincode: currentSelectedAddress?.pincode,
         phone: currentSelectedAddress?.phone,
         notes: currentSelectedAddress?.notes,
