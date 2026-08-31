@@ -13,14 +13,14 @@ function ShoppingAccount() {
       autoPlay
       muted
      // loop
-      playsInline
+      playsInline // mtlb mobile devices pr bhi video autoplay ho jayega without user interaction ke, kyunki kuch mobile browsers me autoplay tabhi work karta hai jab video muted hota hai aur playsInline attribute diya hota hai, isse ensure hota hai ki video mobile devices pr bhi smoothly play ho jaye without any issues
     />
       </div>
       <div className="container mx-auto grid grid-cols-1 gap-8 py-8">
         <div className="flex flex-col rounded-lg border bg-background p-6 shadow-sm">
           <Tabs defaultValue="orders"> {/* default value se mtlb h ki page load ke tym konsa khula aana chaiye */}
             <TabsList>
-              <TabsTrigger value="orders">Orders</TabsTrigger>
+              <TabsTrigger value="orders">Orders</TabsTrigger> {/*  value se mtlb h ki ye trigger kis content se linked hai, yha ye "orders" content se linked hai, jab user is trigger pr click karega to "orders" content show hoga */}
               <TabsTrigger value="address">Address</TabsTrigger>
             </TabsList>
             <TabsContent value="orders">

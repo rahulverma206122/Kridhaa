@@ -9,8 +9,45 @@ const initialState = {
 
 export const fetchAllFilteredProducts = createAsyncThunk(
   "/products/fetchAllProducts",
-  async ({ filterParams, sortParams }) => {
-    const query = new URLSearchParams();
+
+//   Ye "/products/fetchAllProducts" kya hai?
+
+// 👉 Ye action type string hai (Redux Toolkit ka)
+
+// 👉 API route nahi hai ❌
+// 👉 Backend URL nahi hai ❌
+
+// 👉 Ye sirf Redux ko batata hai:
+
+// “Kaunsa async action chal raha hai”
+
+
+// Format hota hai:
+
+// "feature/actionName"
+
+// 👉 Yaha:
+
+// "/products/fetchAllProducts"
+// products → feature / slice
+// fetchAllProducts → action
+
+// Tum ye khud likhte ho?
+
+// 👉 YES ✅ (apne man se likhte ho)
+// 👉 But meaningful hona chahiye
+
+  async ({ filterParams, sortParams }) => {  // Ye bahar se pass kiye ja rahe hain (argument me) // filterParams aur sortParams ko hum component se pass karenge jab hum is async thunk ko call karenge. Jaise ki jab user filter ya sort options select karega, to hum un parameters ko is async thunk me pass karenge taki ye API call me use ho sake.
+    
+//     filterParams = {
+//   category: ["ring", "necklace"],
+//   carat: ["18", "22"]
+// }
+
+// sortParams = "price-lowtohigh"
+
+    const query = new URLSearchParams();  // “Ye ek helper hai jo URL ke ?key=value part ko handle karta hai”
+// /products?category=ring&carat=18 👉 Ye jo ?category=... part hai → usko ye manage karta hai
 
     // loop through filters
     Object.entries(filterParams).forEach(([key, value]) => {
@@ -30,7 +67,7 @@ export const fetchAllFilteredProducts = createAsyncThunk(
       `${import.meta.env.VITE_API_URL}/api/shop/products/get?${query.toString()}`
     );
 
-    console.log("Final API Request URL:", result.config.url); // ✅ see what we send
+    //console.log("Final API Request URL:", result.config.url); // ✅ see what we send
     return result?.data;
   }
 );
@@ -43,7 +80,7 @@ export const fetchProductDetails = createAsyncThunk(
       `${import.meta.env.VITE_API_URL}/api/shop/products/get/${id}`
     );
 
-    return result?.data;
+    return result?.data;  // optional chaining we do this because if result is undefined or null, then result.data will throw an error. By using result?.data, we are saying that if result is undefined or null, then return undefined instead of trying to access data property and throwing an error. This way we can avoid runtime errors in case the API call fails and result is not available.
   }
 );
 

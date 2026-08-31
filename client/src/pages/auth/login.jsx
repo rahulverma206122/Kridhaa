@@ -4,7 +4,20 @@ import { loginFormControls } from "@/config";
 import { loginUser } from "@/store/auth-slice";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";  // Link ek component hai jo use hota hai page navigation ke liye (without reload)
+
+// 🔹 Normal <a> vs Link
+// ❌ HTML <a>
+// <a href="/about">About</a>
+
+// 👉 Page reload ho jata hai
+// 👉 React state reset ho jati hai
+
+// ✅ React Link
+// <Link to="/about">About</Link>
+
+// 👉 Page reload nahi hota
+// 👉 Smooth navigation (SPA behavior)
 
 const initialState = {
   email: "",
@@ -17,7 +30,7 @@ function AuthLogin() {
   const { toast } = useToast();
 
   function onSubmit(event) {
-    event.preventDefault();
+    event.preventDefault(); // isse form submit hone ke bad reload nhi hoga page 
 
     dispatch(loginUser(formData)).then((data) => {
       if (data?.payload?.success) {

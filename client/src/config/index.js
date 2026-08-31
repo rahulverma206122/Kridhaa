@@ -25,7 +25,7 @@ export const registerFormControls = [
 export const loginFormControls = [
   {
     name: "email",
-    label: "Email",
+    label: "Email",  //  label is the text shown to the user on the screen. It helps the user understand what information they need to enter in the form field.
     placeholder: "Enter your email",
     componentType: "input",
     type: "email",
@@ -43,8 +43,8 @@ export const addProductFormElements = [
   {
     label: "Title",
     name: "title",
-    componentType: "input",
-    type: "text",
+    componentType: "input",  // kaunsa component render hoga
+    type: "text",  // type = us element ka behavior kya hoga
     placeholder: "Enter product title",
   },
   {
@@ -184,10 +184,18 @@ export const sortOptions = [
 
 export const addressFormControls = [
   {
-    label: "Address",
-    name: "address",
-    componentType: "input",
-    type: "text",
+    label: "Address",  //  Label is the text shown to the user on the screen. It helps the user understand what information they need to enter in the form field.
+    name: "address",  //  Name is the identifier used in code to store or send the data. 
+    // When form data is sent:
+
+// {
+//   address: "Sector 10 Delhi"
+// }
+
+// So name = key used in backend / state / form data.
+    // name ka mtlb h ki jab hum form data ko handle karenge to hume pata chalega ki ye address field ka data h ya city field ka data h ya state field ka data h isliye name dena zaruri h taki jab hum form data ko handle karenge to hume pata chalega ki ye data kis field ka h
+    componentType: "input", // componentType ka mtlb h ki ye field kis type ka h yani ki ye input field h ya textarea field h ya select field h isliye componentType dena zaruri h taki jab hum form me is field ko render karenge to hume pata chalega ki ye field kis type ka h
+    type: "text",  // type ka mtlb h ki ye field kis type ka data lega yani ki ye text data lega ya number data lega ya email data lega isliye type dena zaruri h taki jab hum form me is field ko render karenge to hume pata chalega ki ye field kis type ka data lega
     placeholder: "Enter your address",
   },
   {

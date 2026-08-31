@@ -75,3 +75,6 @@ const Rate = () => {
 };
 
 export default Rate;
+
+
+// left

@@ -13,7 +13,7 @@ function ProductFilter({ filters, handleFilter }) { // filters and handleFilter 
         <h2 className="text-lg font-extrabold">Filters</h2>
       </div>
       <div className="p-4 space-y-4">
-        {Object.keys(filterOptions).map((keyItem) => (  // filteroption is from config
+        {Object.keys(filterOptions).map((keyItem) => (  // filteroption is from config 
           <Fragment>
             <div>
               <h3 className="text-xl font-bold">{keyItem}</h3>  {/* keyitem se filter me catogory and carat lkha aaega */}

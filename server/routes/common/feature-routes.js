@@ -17,4 +17,4 @@ router.get("/get", getFeatureImages);
 // Delete a feature image by id
 router.delete("/delete/:id", deleteFeatureImage);
 
-module.exports = router;
+module.exports = router;   // ye line sare routes me same rhti h 

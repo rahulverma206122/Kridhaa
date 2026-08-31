@@ -1,11 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import axios from "axios";  // ye ek library h axios is used to make HTTP requests to the backend API. It simplifies the process of sending requests and handling responses. 
 
 const initialState = {//
   isAuthenticated: false,
   isLoading: true,
   user: null,
-  token : null,
+  token: null,
 };
 
 export const registerUser = createAsyncThunk(
@@ -13,10 +13,11 @@ export const registerUser = createAsyncThunk(
 
   async (formData) => {
     const response = await axios.post(  // Calls POST   /api/auth/register with formData (name, email, password).
-      `${import.meta.env.VITE_API_URL}/api/auth/register`,
+      `${import.meta.env.VITE_API_URL}/api/auth/register`,  // jo server.js me hota h wo phle lgta h jaise phle/api/auth fir /register kyu ki ye routes wali file me h 
       formData,
       {
-        withCredentials: true,  // withCredentials: true → Sends cookies
+        withCredentials: true,  // withCredentials: true → Sends cookies  
+        // Frontend jab request bhejta hai, tab uske saath browser automatically cookie bhi server ko bhejta hai (agar withCredentials: true ho)
       }
     );
 
@@ -83,11 +84,16 @@ export const checkAuth = createAsyncThunk(
     const response = await axios.get(
       `${import.meta.env.VITE_API_URL}/api/auth/check-auth`,
       {
-        headers: {
-          Authorization : `Bearer ${token}`,
-          "Cache-Control":
-            "no-store, no-cache, must-revalidate, proxy-revalidate",
-        },
+        headers: {  // Bearer ek keyword hai jo batata hai ki token kis type ka hai
+          Authorization : `Bearer ${token}`,  // 👉 Server ko bol rahe: “Ye user authenticated hai — ye uska token hai”    Backend me kaise milta hai? - req.headers.authorization fir authHeader.split(" ")[1]
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",  // browser ko bol rahe: “Is response ko cache mat karo”    kyunki auth status change ho sakta hai, aur hume hamesha latest status chahiye hota hai. Agar browser cache karega, toh purana auth status mil sakta hai, jo galat hoga.
+        },// no-store - bilkul store mat karo, no-cache - reuse mat karo, must-revalidate - har baar server check karo, proxy-revalidate - proxy server bhi har baar server check kare
+
+// headers kya hote hain?
+
+// 👉 HTTP request ke saath extra info bhejte hain
+// ➡️ Server ko batane ke liye “request ka context kya hai”
+
       }
     );
 
@@ -106,14 +112,21 @@ const authSlice = createSlice({//
       state.token = null;
     }
   },
+
+  // reducer kab chlega 
+// dispatch(resetTokenAndCredentials());
+
+// 👉 Tab ye reducer chalega ✔
+// 👉 State update ho jayega:
+
   extraReducers: (builder) => {
     builder
       .addCase(registerUser.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(registerUser.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.user = null;
+        state.isLoading = false;  
+        state.user = null;  // Registration ke baad user ko null set karna hai, kyunki abhi wo login nahi hua hai. Registration successful hone ke baad bhi user ko login karna padta hai.
         state.isAuthenticated = false;
       })
       .addCase(registerUser.rejected, (state, action) => {
@@ -125,13 +138,52 @@ const authSlice = createSlice({//
         state.isLoading = true;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
-        console.log(action);
+        // console.log(action);
 
         state.isLoading = false;
         state.user = action.payload.success ? action.payload.user : null;
         state.isAuthenticated = action.payload.success;
         state.token = action.payload.token;
         sessionStorage.setItem('token', JSON.stringify(action.payload.token));
+
+// 1️⃣ sessionStorage
+
+// 👉 Browser ka storage hai (temporary)
+// Tab close → data delete
+// Same tab me available
+
+// setItem(key, value)
+// 👉 Data store karne ka method
+// sessionStorage.setItem("token", value);
+// "token" → key
+// value → actual data
+
+// JSON.stringify(...)
+// 👉 Data ko string me convert karta hai
+// 👉 Kyun?
+// ➡️ Storage sirf string accept karta hai
+
+// 🔥 JSON.stringify() kya karta hai?
+
+// JavaScript object (ya data) ko string me convert karta hai
+
+
+// 🧠 Example
+// 🟢 Without stringify (object)
+// const user = {
+//   name: "Rahul",
+//   age: 22
+// };
+
+// 🔴 Storage me directly nahi ja sakta
+// sessionStorage.setItem("user", user); ❌
+// ✅ With stringify
+// sessionStorage.setItem("user", JSON.stringify(user));
+
+// 👉 Store hoga:
+
+// "{\"name\":\"Rahul\",\"age\":22}"
+
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;

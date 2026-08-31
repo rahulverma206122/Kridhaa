@@ -12,6 +12,7 @@ function AuthLayout() {
       </div>
       <div className="flex flex-1 items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
         <Outlet />   
+        {/* // outlet se login/register wala sarting page dikhta h  */}
       </div>
     </div>
   );

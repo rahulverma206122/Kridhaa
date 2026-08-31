@@ -1,15 +1,15 @@
-import { useNavigate } from "react-router-dom";
-import { Button } from "../ui/button";
+import { useNavigate } from "react-router-dom";  // see pdf 
+import { Button } from "../ui/button";  // shadcn/ui provides unstyled, accessible components that you can customize. We have created a Button component using shadcn/ui's Button and added our own styling to it. You can check the code in client/src/components/ui/button.jsx to see how we have created this Button component using shadcn/ui and how you can create your own custom components using shadcn/ui.
 import { SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import UserCartItemsContent from "./cart-items-content";
 
-// ye cart ko kholne pr jo content aata h use dikhega 
+// ye cart ko kholne pr(right side se jo ata h) jo content aata h use dikhega 
 function UserCartWrapper({ cartItems, setOpenCartSheet }) {
   const navigate = useNavigate();
 
   const totalCartAmount =
     cartItems && cartItems.length > 0   // If cartItems exists and has at least one item, run the reduce
-      ? cartItems.reduce(  // reduce funtion me do verible liye sum and cuurentitem
+      ? cartItems.reduce(  // reduce funtion me do verible liye sum and cuurentitem  reduce kya karta hai? 👉 Array ko ek single value me convert karta hai
           (sum, currentItem) =>
             sum +
             (currentItem?.salePrice > 0
@@ -27,8 +27,8 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
       </SheetHeader>
       <div className="mt-8 space-y-4">
         {cartItems && cartItems.length > 0
-          ? cartItems.map((item) => <UserCartItemsContent cartItem={item} />)
-          : null}
+          ? cartItems.map((item) => <UserCartItemsContent cartItem={item} />)  // “Agar cart me items hain → unhe UI me dikhao”  👉 Loop chala rahe ho, Har item ke liye ek component render karta hai
+          : null}  {/*React me {} ke andar JavaScript likhte hain*/}
       </div>
       <div className="mt-8 space-y-4">
         <div className="flex justify-between">
@@ -38,7 +38,7 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
       </div>
       <Button
         onClick={() => {
-          navigate("/shop/checkout");
+          navigate("/shop/checkout"); // Yaha hum navigate("/shop/checkout") use kar rahe hain, iska matlab hai ki jab user Checkout button par click karega to usse "/shop/checkout" route par le jaya jayega.
           setOpenCartSheet(false);
         }}
         className="w-full mt-6"

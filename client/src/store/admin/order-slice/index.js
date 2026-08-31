@@ -10,8 +10,8 @@ export const getAllOrdersForAdmin = createAsyncThunk(
   "/order/getAllOrdersForAdmin",
   async () => {
     const response = await axios.get(
-      `${import.meta.env.VITE_API_URL}/api/admin/orders/get`
-    );
+      `${import.meta.env.VITE_API_URL}/api/admin/orders/get`  // http://localhost:5000/api/admin/orders/get
+    );  //  `${import.meta.env.VITE_API_URL} “Backend ka base URL yaha se aata hai” 🧠
 
     return response.data;
   }
@@ -45,7 +45,7 @@ export const updateOrderStatus = createAsyncThunk(
 const adminOrderSlice = createSlice({
   name: "adminOrderSlice",
   initialState,
-  reducers: {
+  reducers: {  // yha pr resetOrderDetails hmne khud bnaya h koi bhi name de skte the 
     resetOrderDetails: (state) => {  // ise agar nhi krege to jaise hi admin ke andar order ki viewdetails kholege or kisi or page pr jakr fir se orders pr aaege to ye orderdetails apne aap khul kr ajegi
       state.orderDetails = null;  // orderdetails ki state ko null kr diya h 
     },
@@ -80,3 +80,5 @@ const adminOrderSlice = createSlice({
 export const { resetOrderDetails } = adminOrderSlice.actions;  // jab bhi reducer me kuch likhte h to ye krna pdta h 
 // .actions automatically contains all the action defineded in reducers, we can import reducer only if we want 
 export default adminOrderSlice.reducer;
+
+// done 

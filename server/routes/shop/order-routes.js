@@ -8,7 +8,8 @@ const {
 } = require("../../controllers/shop/order-controller");
 
 const router = express.Router();
-
+ 
+// ye hmari api hai order ki 
 router.post("/create", createOrder);
 router.post("/capture", capturePayment);
 router.get("/list/:userId", getAllOrdersByUser);

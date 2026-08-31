@@ -1,7 +1,8 @@
 const paypal = require("paypal-rest-sdk"); // Loads the official PayPal REST SDK(Software Development Kit) for Node.js.This SDK provides methods to create, execute, and manage payments.
+// Ye PayPal ki library (SDK) ko import kar raha hai taaki tum payment features use kar sako
 
-console.log("Mode:", process.env.PAYPAL_MODE);
-console.log("Client ID starts with:", process.env.PAYPAL_CLIENT_ID?.slice(0,10));
+// console.log("Mode:", process.env.PAYPAL_MODE);
+// console.log("Client ID starts with:", process.env.PAYPAL_CLIENT_ID?.slice(0,10));
 
 paypal.configure({
   // mode: process.env.PAYPAL_MODE, // "sandbox" or "live"
@@ -13,3 +14,5 @@ paypal.configure({
 });
 
 module.exports = paypal;
+ 
+// npm i paypal-rest-sdk

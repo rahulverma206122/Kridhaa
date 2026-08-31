@@ -79,7 +79,7 @@ function ShoppingOrders() {
                     <TableCell>
                       <Dialog
                         open={openDetailsDialog}
-                        onOpenChange={() => {
+                        onOpenChange={() => {   // onopenchange ka mtlb ye h ki jab bhi dialog close ya open ho to ye function call hoga
                           setOpenDetailsDialog(false);
                           dispatch(resetOrderDetails()); // ye orderslice me reducer me h 
                         }}

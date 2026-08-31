@@ -64,9 +64,9 @@ import { useToast } from "@/components/ui/use-toast";
 import ProductDetailsDialog from "@/components/shopping-view/product-details";
 import { getFeatureImages } from "@/store/common-slice";
 
-const categoriesWithIcon = [
-  { id: "men", label: "Men", image: men },
-  { id: "women", label: "Women", image: women },
+const categoriesWithIcon = [  
+  { id: "men", label: "Men", image: men },  // id = internal unique identifier (backend/frontend logic ke liye)
+  { id: "women", label: "Women", image: women },  // label = jo user ko dikhana hai (UI par dikhne wala text)
   { id: "kids", label: "Kids", image: kidsImg},  
   { id: "coins", label: "Coins & Bars", image: coin},
   {id: "anklets", label: "Anklets", image:anklet},
@@ -92,12 +92,17 @@ const videoWithIcon = [
 ];
 
 
-
 function ShoppingHome() {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const { productList, productDetails } = useSelector(
-    (state) => state.shopProducts
-  );
+
+// currentSlide index track karta hai (kaunsa slide show ho raha hai)
+// Slider me indexing 0 se start hoti hai
+// Isliye initial value = 0 (first image)
+
+// 🔥 null kab use karte hain?
+// 👉 When value abhi exist nahi karti, but baad me aayegi
+
+  const { productList, productDetails } = useSelector((state) => state.shopProducts);
   const { featureImageList } = useSelector((state) => state.commonFeature);
 
   const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
@@ -105,8 +110,9 @@ function ShoppingHome() {
   const { user } = useSelector((state) => state.auth);
 
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { toast } = useToast();
+  const navigate = useNavigate(); // useNavigate() hook React Router v6 ka part hai, jo ki functional components me navigation handle karne ke liye use hota hai. Ye hook ek function return karta hai jise hum navigate() ke naam se use karte hain, jiska use karke hum programmatically kisi bhi route par navigate kar sakte hain. 
+  // Jaise ki jab user kisi category ya product par click kare, to hum navigate() function ka use karke us specific listing page ya product details page par le ja sakte hain, bina kisi link ke click ke. Ye dynamic navigation ke liye bahut useful hota hai, especially jab aapko user actions ke basis par different pages par le jana ho.
+  const { toast } = useToast(); // useToast() custom hook hai jo ki toast notifications ko handle karta hai. Ye hook ek object return karta hai jisme toast function hota hai, jiska use karke hum apne application me toast messages show kar sakte hain. Jaise ki jab user koi product cart me add kare, to hum toast() function ka use karke ek success message show kar sakte hain, jisse user ko feedback mile ki unka action successful tha. Ye user experience ko enhance karta hai aur users ko important information provide karta hai without disrupting their workflow.
 
   function handleNavigateToListingPage(getCurrentItem, section) {
     sessionStorage.removeItem("filters");  // first we clear the session storage mtlb jo bhi filter lga ho phle use clear krdo
@@ -143,23 +149,74 @@ function ShoppingHome() {
     if (productDetails !== null) setOpenDetailsDialog(true);
   }, [productDetails]);
 
+//   🔥 1. [productDetails] kya hai?
+
+// 👉 Haan, isse second parameter bolte hain
+// 👉 Technically iska naam hai: dependency array
+// “Jab bhi productDetails change hoga → ye function run hoga”
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prevSlide) => (prevSlide + 1) % featureImageList.length);
-    }, 15000);  // every 5 sec me slide aage bhad jaegi
+    }, 15000);  // every 15 sec me slide aage bhad jaegi  // 15000 ms = 15 seconds
   // If we leave it like that, even when we leave the page or the images change, that old interval will still keep running in the background.
 //This can create extra unwanted timers (multiple slides changing at once) and also waste memory.so we use clearinterval
     return () => clearInterval(timer); // It means: when the component closes or updates, stop the old timer before starting a new one.
   }, [featureImageList]);
 
+//   Flow samajh (step-by-step)
+// Page load →
+// useEffect run →
+// setInterval start →
+
+// Every 15 sec →
+// currentSlide update →
+
+// If images change →
+// cleanup (clearInterval) →
+// new interval start
+
+// Agar cleanup nahi hota:
+
+// 👉 Problem:
+
+// Multiple timers run honge 😵
+// Slide fast fast change hogi
+// Memory leak hoga
+
   useEffect(() => {  // jaise hi home page pr aaege sare product dikhne lgege
     dispatch(
       fetchAllFilteredProducts({ // initial filter nhi hoga and price low to high aaege
-        filterParams: {},
+        filterParams: {}, 
         sortParams: "price-lowtohigh",
       })
     );
-  }, [dispatch]);
+  }, [dispatch]);  
+
+//   ❌ Tum kya soch rahe ho:
+
+// “jab bhi dispatch hoga ye chalega”
+
+// 👉 ❌ Ye galat hai
+// “Agar dispatch function change hota hai tab effect run hoga”
+
+// 🔥 BUT reality kya hai?
+
+// 👉 Redux ka dispatch kabhi change hi nahi hota (stable hota hai)
+
+// 👉 Isliye practically:
+
+// Ye effect sirf ek baar run hota hai (mount pe)
+
+// 🔹 To fir [dispatch] likhte kyun hain?
+
+// 👉 2 reasons:
+
+// 1. ESLint rule (important)
+
+// React bolta hai:
+
+// “Jo bhi use ho raha hai effect me, dependency me daalo”
 
   useEffect(() => { // // jaise hi home page pr aaege sare images dikhne lgege
     dispatch(getFeatureImages());
@@ -180,7 +237,6 @@ function ShoppingHome() {
     hidden: { opacity: 0, x: -50 }, // start off-screen left
     show: { opacity: 1, x: 0 },     // fade in + slide to place
   };
-
 
 
   return (
@@ -258,7 +314,7 @@ function ShoppingHome() {
                 whileInView="show"   // animate only when visible
                 viewport={{ once: true, amount: 0.2 }} // trigger when 20% visible
               >
-                {caratsWithIcon.map((caratItem) => (
+                {caratsWithIcon.map((caratItem) => (  // variants = {item}  mtlb har ek item pr ye animation apply hoga
                   <motion.div key={caratItem.id} variants={item}>
                     <div className="flex flex-col items-center">
                       <Card

@@ -11,23 +11,23 @@ const getAllOrdersOfAllUsers = async (req, res) => {
       });
     }
 
-    res.status(200).json({
+    res.status(200).json({  // 200 means success
       success: true,
       data: orders,
     });
   } catch (e) {
-    console.log(e);
-    res.status(500).json({
+   // console.log(e);
+    res.status(500).json({ // 500 means server error and 505 means client error
       success: false,
       message: "Some error occured!",
     });
   }
 };
 
-// yha se hum jab ksi card pr click krege to wo uski details dikahega 
+// yha se hum jab kisi card pr click krege to wo uski details dikahega 
 const getOrderDetailsForAdmin = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params;  // ye id URL parameter se aayega, e.g., /api/orders/:id and ye id order ka id hoga jiske details hum fetch krna chahte h
 
     const order = await Order.findById(id);
 
@@ -43,7 +43,7 @@ const getOrderDetailsForAdmin = async (req, res) => {
       data: order,
     });
   } catch (e) {
-    console.log(e);
+   // console.log(e);
     res.status(500).json({
       success: false,
       message: "Some error occured!",
@@ -55,9 +55,9 @@ const updateOrderStatus = async (req, res) => { // req and res both are object
   try {
     const { id } = req.params; // comes from the URL parameter, e.g., /api/orders/:id
     const { orderStatus } = req.body;  // comes from the client sending JSON in the request body:{ "orderStatus": "Shipped" }
-
-    const order = await Order.findById(id);
-
+// req.body wahi data hota hai jo frontend (user (admin) side) backend ko request ke saath bhejta hai, aur usme se hum orderStatus ko extract kar rahe ho jo ki user ne update karne ke liye bheja hoga
+    
+const order = await Order.findById(id);
     if (!order) {
       return res.status(404).json({
         success: false,
@@ -73,7 +73,7 @@ const updateOrderStatus = async (req, res) => { // req and res both are object
       message: "Order status is updated successfully!",
     });
   } catch (e) {
-    console.log(e);
+   // console.log(e);
     res.status(500).json({
       success: false,
       message: "Some error occured!",

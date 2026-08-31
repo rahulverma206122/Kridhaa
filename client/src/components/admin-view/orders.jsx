@@ -78,7 +78,7 @@ function AdminOrdersView() {
                     <TableCell>
                       <Dialog
                         open={openDetailsDialog}
-                        onOpenChange={() => {
+                        onOpenChange={() => {  // “Jab open/close state change ho, tab ye function call karo”
                           setOpenDetailsDialog(false);
                           dispatch(resetOrderDetails());  // ye slice ke andr reducer se aara h 
                         }}

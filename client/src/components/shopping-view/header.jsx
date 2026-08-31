@@ -92,7 +92,7 @@ function HeaderRightContent() {
       <Sheet open={openCartSheet} onOpenChange={() => setOpenCartSheet(false)}>
         <Button
           onClick={() => setOpenCartSheet(true)}
-          variant="outline"
+          variant="outline" // variant="outline" gives the button an outlined style, making it visually distinct and suitable for secondary actions.
           size="icon"
           className="relative transition-transform duration-100 hover:scale-125"
         >

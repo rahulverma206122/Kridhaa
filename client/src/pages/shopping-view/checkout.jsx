@@ -12,7 +12,7 @@ import { useToast } from "@/components/ui/use-toast";
 function ShoppingCheckout() {
   const { cartItems } = useSelector((state) => state.shopCart);
   const { user } = useSelector((state) => state.auth);
-  const { approvalURL } = useSelector((state) => state.shopOrder);
+  const { approvalURL } = useSelector((state) => state.shopOrder);  // approvalURL shoporder slice me h 
   const [currentSelectedAddress, setCurrentSelectedAddress] = useState(null);  // how to know when do null false and 0 in usestate see in notes
   const [isPaymentStart, setIsPaymemntStart] = useState(false);
   const dispatch = useDispatch();
@@ -75,14 +75,26 @@ function ShoppingCheckout() {
       paymentMethod: "paypal",
       paymentStatus: "pending",
       totalAmount: totalCartAmount,
-      orderDate: new Date(),// can we do date.now()  see in notes
+      orderDate: new Date(),// can we do date.now()  see in notes    creates a Date object (full date + time). 2026-04-25T14:30:45.123Z   If you want to store just the date without time, you can set the time to 00:00:00 using setHours(0, 0, 0, 0) method on the Date object. This way, you will have a Date object that represents only the date part without any time information.
+//       👉 Used when:
+
+// You want to store date properly in DB (like MongoDB)
+// You may need formatting, timezone handling, etc.
+      
+      // Date.now() returns a timestamp (number) in milliseconds. 1714042245123
+
+//       👉 Used when:
+
+// You only need time difference / calculations
+// Not worried about date formatting
+
       orderUpdateDate: new Date(),
       paymentId: "",
       payerId: "",
     };
 
     dispatch(createNewOrder(orderData)).then((data) => {  // createneworder shop ke orderslice se dispatch kiya h
-      console.log(data, "Rahul");  // yha se humm backend ko req bhej rhe h jo orderdata bnaya h uska pura data dekr ye req createneworeder bhej rha h
+      // console.log(data, "Rahul");  // yha se humm backend ko req bhej rhe h jo orderdata bnaya h uska pura data dekr ye req createneworeder bhej rha h
       if (data?.payload?.success) {
         setIsPaymemntStart(true);
       } else {
@@ -91,9 +103,36 @@ function ShoppingCheckout() {
     });
   }
 
-  if (approvalURL) { // if approvalurl present 
+// 🔹 Why .then((data) => {...}) is used?
+
+// 👉 Because
+// dispatch(createNewOrder(orderData)) returns a Promise
+
+// So you’re doing:
+
+// dispatch(...)  → async call → backend request → response
+
+// .then() is used to handle the response after API call finishes
+
+// 🔥 Flow (step-by-step)
+// dispatch(createNewOrder(orderData))
+//         ↓
+// Redux thunk runs
+//         ↓
+// API call to backend
+//         ↓
+// Response comes back
+//         ↓
+// .then((data) => { ... }) executes
+
+
+  if (approvalURL) { // if approvalurl present   // approvalURL shoporder slice me h
     window.location.href = approvalURL; // window.location.href represents the current page’s full URL.“If approvalURL exists, redirect the user’s browser to that URL.”
   }
+
+  // window.location.href = browser ke andar current page ka URL hota hai, jab hum ise kisi naye URL se set karte hain, to browser us naye URL par navigate kar jata hai. Yaha pe hum check kar rahe hain ki agar approvalURL available hai,
+  // to user ko us URL par redirect kar denge, jahan wo PayPal payment process complete kar sakta hai.
+  // Ye redirection tabhi hoga jab backend se hume PayPal ka approvalURL mil jayega, jo ki payment initiation ke response me aata hai.
 
   return (
     <div className="flex flex-col">
@@ -106,7 +145,7 @@ function ShoppingCheckout() {
             muted
             loop
             playsInline
-            preload="auto"
+            preload="auto"  // preload attribute ka use karke hum browser ko bata sakte hain ki video ko kaise load karna chahiye. "auto" value ka matlab hai ki browser video ko load karna shuru kar dega jaise hi page load hota hai, lekin wo video ko play nahi karega jab tak user usse play na kare. Isse ensure hota hai ki video content jaldi se available ho jaye jab user play button dabaye, bina kisi delay ke. Ye especially useful hota hai jab aap chahte hain ki video content smoothly play ho without buffering issues, aur user experience ko enhance karta hai.
           />
 
           {/* Gradient overlay (fade bottom into white) */}

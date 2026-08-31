@@ -44,3 +44,5 @@ const searchSlice = createSlice({
 export const { resetSearchResults } = searchSlice.actions;
 
 export default searchSlice.reducer;
+
+// done

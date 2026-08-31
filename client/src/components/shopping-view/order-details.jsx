@@ -17,7 +17,22 @@ function ShoppingOrderDetailsView({ orderDetails }) {
           </div>
           <div className="flex mt-2 items-center justify-between">
             <p className="font-medium">Order Date</p>
-            <Label>{orderDetails?.orderDate.split("T")[0]}</Label> 
+            <Label>{orderDetails?.orderDate.split("T")[0]}</Label>  
+ 
+ {/* 🔥 Problem kya hai?
+
+👉 orderDate usually aata hai ISO format me:
+
+2026-04-25T14:30:45.123Z
+
+👉 Isme:
+
+Date + Time dono hote hain
+But UI me hume sirf date chahiye */}
+
+{/*result - ["2026-04-25", "14:30:45.123Z"] */}
+
+
           </div>
           <div className="flex mt-2 items-center justify-between">
             <p className="font-medium">Order Price</p>

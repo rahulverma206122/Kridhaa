@@ -32,8 +32,7 @@ const initialFormData = {
 };
 
 function AdminProducts() {
-  const [openCreateProductsDialog, setOpenCreateProductsDialog] =
-    useState(false);
+  const [openCreateProductsDialog, setOpenCreateProductsDialog] = useState(false);
   const [formData, setFormData] = useState(initialFormData);
   const [imageFile, setImageFile] = useState(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
@@ -54,7 +53,7 @@ function AdminProducts() {
             formData,
           })
         ).then((data) => {
-          console.log(data, "edit");
+        //  console.log(data, "edit");
 
           if (data?.payload?.success) {
             dispatch(fetchAllProducts());
@@ -100,10 +99,11 @@ function AdminProducts() {
     dispatch(fetchAllProducts());
   }, [dispatch]);
 
-  console.log(formData, "productList");
+  // console.log(formData, "productList");
 
   return (
-    <Fragment>
+    // <Fragment>  👉 <Fragment> (ya <> </>) use hota hai multiple elements ko group karne ke liye WITHOUT extra HTML tag
+      <Fragment>
       <div className="mb-5 w-full flex justify-end">
         <Button onClick={() => setOpenCreateProductsDialog(true)}>
           Add New Product

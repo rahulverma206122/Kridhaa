@@ -1,4 +1,13 @@
 import { Route, Routes } from "react-router-dom";
+
+// 🔥 Routes kya hai?
+// 👉 Ye ek container hai
+// 👉 Iske andar tum saare routes define karte ho
+
+// 🔥 Route kya hai?
+// 👉 Ye ek mapping hai
+// <Route path="/login" element={<Login />} />
+
 import AuthLayout from "./components/auth/layout";
 import AuthLogin from "./pages/auth/login";
 import AuthRegister from "./pages/auth/register";
@@ -28,11 +37,17 @@ function App() {
     (state) => state.auth
   );
   const dispatch = useDispatch();
-
+// 👉 Page load hote hi user login hai ya nahi check kar raha hai
   useEffect(() => {
-    const token = JSON.parse(sessionStorage.getItem('token'))
+    const token = JSON.parse(sessionStorage.getItem('token'))  // 👉 Browser me saved token le raha hai and String ko JavaScript object me convert karta hai
     dispatch(checkAuth(token));
-  }, [dispatch]);
+ }, [dispatch]);
+
+//     4. dispatch(checkAuth(token))
+// 👉 Backend ko request bhej raha hai
+// 👉 Backend check karega:
+// token valid hai? ✔️
+// user kaun hai? ✔️
 
   if (isLoading) return <Skeleton className="w-[800] bg-black h-[600px]" />;
 
@@ -41,8 +56,23 @@ function App() {
   return (
     <div className="flex flex-col overflow-hidden bg-white">
       <Routes>
+{/* 
+👉 Yaha sirf CheckAuth hai
+👉 Koi UI (page/layout) nahi hai
+
+Matlab:
+👉 Ye sirf decide karega:
+kidhar bhejna hai user ko
+
+👉 Example:
+login nahi → /auth/login
+login hai → /shop/home
+
+👉 Ye khud kuch dikhata nahi hai ❌
+👉 Sirf redirect karta hai 🔄 */}
+
         <Route
-          path="/"
+          path="/"  // 👉 Ye root route hai 👉 Isko generally homepage bolte hain but yha 👉 Pehle auth check ho raha hai
           element={
             <CheckAuth
               isAuthenticated={isAuthenticated}
@@ -50,6 +80,11 @@ function App() {
             ></CheckAuth>
           }
         />
+{/* 
+CheckAuth bhi hai
+AuthLayout bhi hai
+andar login/register pages bhi hain */}
+
         <Route
           path="/auth"
           element={
@@ -69,7 +104,8 @@ function App() {
             </CheckAuth>
           }
         >
-          <Route path="dashboard" element={<AdminDashboard />} />
+          {/* / kyu nhi lgaya 👉 Ye parent route ke andar likha hai mtlb /admin  +  dashboard  =  /admin/dashboard*/}
+          <Route path="dashboard" element={<AdminDashboard />} />  
           <Route path="products" element={<AdminProducts />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="features" element={<AdminFeatures />} />
@@ -103,3 +139,53 @@ function App() {
 }
 
 export default App;
+
+
+// 🔥 Interview Questions (must know)
+// ❓ Q1: What does App.jsx do?
+
+// 👉
+// It handles routing and authentication logic of the application
+
+// ❓ Q2: What is CheckAuth?
+
+// 👉
+// A wrapper component that protects routes based on authentication
+
+// ❓ Q3: What is nested routing?
+
+// 👉
+// Routes inside routes using Outlet and layouts
+
+// ❓ Q4: Why use useEffect here?
+
+// 👉
+// To check authentication when app loads
+
+// ❓ Q5: What happens if route not found?
+
+// 👉
+// It goes to "*" route → NotFound page
+
+// ❓ Q6: Why layouts?
+
+// 👉
+// To reuse common UI (header/sidebar)
+
+// 🔥 Why we make routes in App.js?
+
+// 👉 Simple:
+
+// User kis URL pe kya dekhe — ye decide karne ke liye
+
+// 🔹 Without routes kya hota?
+
+// 👉 Agar routing na ho:
+
+// Har URL pe same page dikhega 😵
+
+// 👉 /login, /shop, /admin sab same UI
+
+// 🔥 One-line yaad rakh
+
+// 👉 Routes banate hain taaki different URLs pe different pages dikhe without page reload

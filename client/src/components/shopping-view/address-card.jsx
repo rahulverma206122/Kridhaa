@@ -1,9 +1,9 @@
-import { Button } from "../ui/button";
+import { Button } from "../ui/button"; // thse are provied by shadcn/ui. We have just added some custom styling to it. You can check the code in client/src/components/ui/button.jsx to see how we have created this Button component using shadcn/ui and how you can create your own custom components using shadcn/ui.
 import { Card, CardContent, CardFooter } from "../ui/card";
 import { Label } from "../ui/label";
 
 function AddressCard({
-  addressInfo,
+  addressInfo,     // These are props (properties) that the component receives from its parent component.
   handleDeleteAddress,
   handleEditAddress,
   setCurrentSelectedAddress,

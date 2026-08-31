@@ -37,7 +37,7 @@ function SearchProducts() {
   }, [keyword]);
 
   function handleAddtoCart(getCurrentProductId, getTotalStock) {
-    console.log(cartItems);
+    //console.log(cartItems);
     let getCartItems = cartItems.items || [];
 
     if (getCartItems.length) {
@@ -74,7 +74,7 @@ function SearchProducts() {
   }
 
   function handleGetProductDetails(getCurrentProductId) {
-    console.log(getCurrentProductId);
+    // console.log(getCurrentProductId);
     dispatch(fetchProductDetails(getCurrentProductId));
   }
 
@@ -82,15 +82,15 @@ function SearchProducts() {
     if (productDetails !== null) setOpenDetailsDialog(true);
   }, [productDetails]);
 
-  console.log(searchResults, "searchResults");
+  // console.log(searchResults, "searchResults");
 
   return (
     <div className="container mx-auto md:px-6 px-4 py-8">
       <div className="flex justify-center mb-8">
         <div className="w-full flex items-center">
           <Input
-            value={keyword}
-            name="keyword"
+            value={keyword}  // value = input ke andar kya likha hua hai mtlb user ne kya type kiya h 
+            name="keyword"   // name = input ka identifier (naam) Form handling me use hota ha, Backend ya event handling me kaam aata hai
             onChange={(event) => setKeyword(event.target.value)}
             className="py-6"
             placeholder="Search Products..."

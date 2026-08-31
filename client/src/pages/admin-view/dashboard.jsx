@@ -46,7 +46,7 @@ function AdminDashboard() {
         setUploadedImageUrl={setUploadedImageUrl}
         setImageLoadingState={setImageLoadingState}
         imageLoadingState={imageLoadingState}
-        isCustomStyling={true}
+        isCustomStyling={true} // agar aapko custom styling chahiye to true kare otherwise false
       />
 
       <Button onClick={handleUploadFeatureImage} className="mt-5 w-full">

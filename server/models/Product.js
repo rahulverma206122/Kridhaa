@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const ProductSchema = new mongoose.Schema(
   {
-    image: String,
+    image: String,  // isme image string h jo image ka URL hoga
     title: String,
     description: String,
     category: String,
