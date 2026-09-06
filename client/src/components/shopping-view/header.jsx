@@ -1,4 +1,12 @@
-import { House, LogOut, Menu, ShoppingCart, UserCog } from "lucide-react";
+import {
+  House,
+  LogOut,
+  Menu,
+  ShoppingCart,
+  UserCog,
+  Camera,
+  UserRound,
+} from "lucide-react";
 import {
   Link,
   useLocation,
@@ -21,7 +29,10 @@ import { Avatar, AvatarFallback } from "../ui/avatar";
 import { logoutUser, resetTokenAndCredentials } from "@/store/auth-slice";
 import UserCartWrapper from "./cart-wrapper";
 import { useEffect, useState } from "react";
-import { fetchCartItems } from "@/store/shop/cart-slice";
+import {
+  fetchCartItems,
+  syncGuestCart,
+} from "@/store/shop/cart-slice";
 import { Label } from "../ui/label";
 import logo from "../../assets/kridha.png";
 
@@ -55,20 +66,38 @@ function MenuItems() {
   return (
     <nav className="flex flex-col mb-3 lg:mb-0 lg:items-center gap-6 lg:flex-row">
       {shoppingViewHeaderMenuItems.map((menuItem) => ( // {/* this comes from config ke andar index.js */}
-        <Label
-          onClick={() => handleNavigate(menuItem)}
-          className=" font-medium text-base cursor-pointer transition-transform duration-200 hover:scale-125 hover:text-red-400"
-          key={menuItem.id}
-        >
-          {menuItem.label}
-        </Label>
+        // NEW: wrapped each item in a flex container so the camera icon can
+        // sit directly next to the "Search" label specifically, instead of
+        // living on the opposite side of the header near the cart.
+        <div key={menuItem.id} className="flex items-center gap-2">
+          <Label
+            onClick={() => handleNavigate(menuItem)}
+            className=" font-medium text-base cursor-pointer transition-transform duration-200 hover:scale-125 hover:text-red-400"
+          >
+            {menuItem.label}
+          </Label>
+
+          {/* NEW: AI Visual Search camera icon — placed right after "Search"
+              specifically, per request, rather than near the cart/profile. */}
+          {menuItem.id === "search" && (
+            <button
+              type="button"
+              onClick={() => navigate("/shop/visual-search")}
+              className="w-8 h-8 rounded-full border flex items-center justify-center
+              hover:bg-gray-100 hover:scale-125 transition-all ml-3"
+            >
+              <Camera className="w-6 h-6" />
+              <span className="sr-only">AI Visual Search</span>
+            </button>
+          )}
+        </div>
       ))}
     </nav>
   );
 }
 
 function HeaderRightContent() {
-  const { user } = useSelector((state) => state.auth); // useSelector is a React-Redux hook that lets you read data from the Redux store.(state) => state.auth → We are accessing the auth slice of the Redux state.{ user } → We extract the user property from that slice.
+  const { user, isAuthenticated } = useSelector((state) => state.auth); // useSelector is a React-Redux hook that lets you read data from the Redux store.(state) => state.auth → We are accessing the auth slice of the Redux state.{ user } → We extract the user property from that slice.
   const { cartItems } = useSelector((state) => state.shopCart);
   const [openCartSheet, setOpenCartSheet] = useState(false);
   const navigate = useNavigate();
@@ -76,25 +105,36 @@ function HeaderRightContent() {
 
   function handleLogout() {
     //dispatch(logoutUser());  // logoutuser hmne store me auth me bna rkha h 
-   dispatch(resetTokenAndCredentials());
-   sessionStorage.clear();
-   navigate("/auth/login");
+    dispatch(resetTokenAndCredentials());
+    sessionStorage.clear();
+    navigate("/shop/home");
   }
 
   useEffect(() => {
-    dispatch(fetchCartItems(user?.id));
-  }, [dispatch]);
+    // 🔥 Guest user ke liye localStorage wala cart load hoga
+    if (!isAuthenticated || !user?.id) {
+      dispatch(fetchCartItems(null));
+      return;
+    }
+
+    // 🔥 Login hone ke baad pehle guest cart ko user ke MongoDB cart me sync karenge
+    dispatch(syncGuestCart(user.id)).then(() => {
+      // 🔥 Sync complete hone ke baad latest user cart fetch karenge
+      dispatch(fetchCartItems(user.id));
+    });
+  }, [dispatch, isAuthenticated, user?.id]);
 
   
   return (
 
     <div className="flex lg:items-center lg:flex-row flex-col gap-7">
+
       <Sheet open={openCartSheet} onOpenChange={() => setOpenCartSheet(false)}>
         <Button
           onClick={() => setOpenCartSheet(true)}
           variant="outline" // variant="outline" gives the button an outlined style, making it visually distinct and suitable for secondary actions.
           size="icon"
-          className="relative transition-transform duration-100 hover:scale-125"
+          className="relative transition-transform duration-100 hover:scale-110"
         >
           <ShoppingCart className="w-6 h-6" />
           <span className="absolute top-[-5px] right-[2px] font-bold text-sm">
@@ -102,6 +142,7 @@ function HeaderRightContent() {
           </span>
           <span className="sr-only">User cart</span> {/*On the screen, "User cart" won’t be visible. Screen readers (for blind/low-vision users) will still read “User cart”. */}
         </Button>
+
         <UserCartWrapper //  come from cartwrapper.jsx
           setOpenCartSheet={setOpenCartSheet}
           cartItems={
@@ -112,28 +153,46 @@ function HeaderRightContent() {
         />
       </Sheet>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Avatar className="bg-black transition-transform duration-100 hover:scale-125">
-            <AvatarFallback className="bg-black text-white font-extrabold">
-              {user?.userName[0].toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent side="right" className="w-56">
-          <DropdownMenuLabel>Logged in as {user?.userName}</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => navigate("/shop/account")}>
-            <UserCog className="mr-2 h-4 w-4" />
-            Account
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleLogout}>
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {/* 🔥 Logged-in user ko existing black avatar dikhega
+          🔥 Guest user ko User/Login icon dikhega */}
+      {isAuthenticated ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Avatar className="bg-black transition-transform duration-100 hover:scale-110">
+              <AvatarFallback className="bg-black text-white font-extrabold">
+                {user?.userName[0].toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent side="right" className="w-56">
+            <DropdownMenuLabel>Logged in as {user?.userName}</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem onClick={() => navigate("/shop/account")}>
+              <UserCog className="mr-2 h-4 w-4" />
+              Account
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : (
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => navigate("/auth/login")}
+          className="rounded-full transition-transform duration-100 hover:scale-110"
+        >
+          <UserRound className="w-6 h-6" />
+          <span className="sr-only">Login</span>
+        </Button>
+      )}
     </div>
   );
 }
@@ -176,6 +235,7 @@ function ShoppingHeader() {
            src={logo} />
           {/* <span className="font-bold  text-xl">Kridha Jewellers</span> */}
         </Link>
+
         <Sheet> {/* this sheet works for mobile smaller devices */}
           <SheetTrigger asChild>
             <Button variant="outline" size="icon" className="lg:hidden">
@@ -183,11 +243,13 @@ function ShoppingHeader() {
               <span className="sr-only">Toggle header menu</span> 
             </Button>
           </SheetTrigger>
+
           <SheetContent side="left" className="w-full max-w-xs">
             <MenuItems />
             <HeaderRightContent />
           </SheetContent>
         </Sheet>
+
         <div className="hidden lg:block"> {/* hidden → hides the element (display: none) on all screen sizes by default. lg:block → when the screen size is large (≥1024px) or bigger, the element will be displayed as block. */}
           <MenuItems />
         </div>

@@ -26,8 +26,19 @@ const OrderSchema = new mongoose.Schema({
   totalAmount: Number,
   orderDate: Date,
   orderUpdateDate: Date,
+
+  // LEGACY: PayPal ke time ke fields — naye orders me ab ye populate nahi
+  // honge (Razorpay flow inhe use nahi karta), lekin field ko delete nahi
+  // kiya taaki purane (PayPal se bane) orders ka data DB me safe rahe aur
+  // unke records padhne me koi dikkat na aaye.
   paymentId: String,
   payerId: String,
+
+  // NEW (Razorpay migration): inhi teen fields se hum payment verify aur
+  // track karte hain — approximately PayPal ke paymentId/payerId ki jagah.
+  razorpayOrderId: String,     // Razorpay ka apna order id (create step par milta hai)
+  razorpayPaymentId: String,   // Razorpay ka payment id (payment complete hone par milta hai)
+  razorpaySignature: String,   // verification signature — future me refund/dispute ke liye record rakhna acha practice hai
 });
 
 module.exports = mongoose.model("Order", OrderSchema); // "Order" = collection name (MongoDB me) 

@@ -64,6 +64,10 @@ import { useToast } from "@/components/ui/use-toast";
 import ProductDetailsDialog from "@/components/shopping-view/product-details";
 import { getFeatureImages } from "@/store/common-slice";
 
+import AIJewelryAssistant from "@/components/shopping-view/ai-jewelry-assistant";
+
+import RecommendedProducts from "@/components/shopping-view/recommended-products";
+
 const categoriesWithIcon = [  
   { id: "men", label: "Men", image: men },  // id = internal unique identifier (backend/frontend logic ke liye)
   { id: "women", label: "Women", image: women },  // label = jo user ko dikhana hai (UI par dikhne wala text)
@@ -128,22 +132,60 @@ function ShoppingHome() {
     dispatch(fetchProductDetails(getCurrentProductId));
   }
 
-  function handleAddtoCart(getCurrentProductId) {
-    dispatch(
-      addToCart({
-        userId: user?.id,
-        productId: getCurrentProductId,
-        quantity: 1,
-      })
-    ).then((data) => {
-      if (data?.payload?.success) {
+  // function handleAddtoCart(getCurrentProductId) {
+  //   dispatch(
+  //     addToCart({
+  //       userId: user?.id,
+  //       productId: getCurrentProductId,
+  //       quantity: 1,
+  //     })
+  //   ).then((data) => {
+  //     if (data?.payload?.success) {
+  //       dispatch(fetchCartItems(user?.id));
+  //       toast({
+  //         title: "Product is added to cart",
+  //       });
+  //     }
+  //   });
+  // }
+
+
+function handleAddtoCart(getCurrentProductId, getTotalStock, product) {
+  // 🔥 Product ki complete information guest cart ke liye pass kar rahe hain
+  const productData = {
+    title: product?.title,
+    image: product?.image,
+    price: product?.price,
+    salePrice: product?.salePrice,
+  };
+
+  dispatch(
+    addToCart({
+      userId: user?.id,
+      productId: getCurrentProductId,
+      quantity: 1,
+      product: productData,
+    })
+  ).then((data) => {
+    if (data?.payload?.success) {
+      // 🔥 Guest cart ke liye fetchCartItems ki zaroorat nahi hai
+      // kyunki cart-slice already Redux state update kar raha hai.
+      if (data?.payload?.isGuestCart) {
+        // Guest cart already Redux me update ho chuka hai
+      } else {
+        // Logged-in user ke liye backend se latest cart fetch karo
         dispatch(fetchCartItems(user?.id));
-        toast({
-          title: "Product is added to cart",
-        });
       }
-    });
-  }
+
+      toast({
+        title: "Product is added to cart",
+      });
+    }
+  });
+}
+
+
+
 
   useEffect(() => {
     if (productDetails !== null) setOpenDetailsDialog(true);
@@ -537,6 +579,10 @@ function ShoppingHome() {
           </div>
         </section>
 
+        <RecommendedProducts
+  handleGetProductDetails={handleGetProductDetails}
+  handleAddtoCart={handleAddtoCart}
+/>
 
        <section className="py-1 bg-white">
         <div className="container mx-auto px-4">
@@ -569,6 +615,9 @@ function ShoppingHome() {
         setOpen={setOpenDetailsDialog}
         productDetails={productDetails}
       />
+          
+
+          <AIJewelryAssistant />
 
           <div>
           <Footer />

@@ -2,7 +2,13 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 const initialState = {
-  approvalURL: null,
+  // NEW: approvalURL hata diya — Razorpay me koi redirect URL nahi aata,
+  // iski jagah checkout modal kholne ke liye ye 4 cheezein chahiye hoti hain
+  razorpayOrderId: null,
+  amount: null,
+  currency: null,
+  keyId: null,
+
   isLoading: false,
   orderId: null,
   orderList: [],
@@ -23,12 +29,17 @@ export const createNewOrder = createAsyncThunk( // why we create asyncthunk wht 
 
 export const capturePayment = createAsyncThunk(
   "/order/capturePayment",
-  async ({ paymentId, payerId, orderId }) => {
+  // NEW (Razorpay migration): pehle {paymentId, payerId, orderId} aata tha
+  // (PayPal ke return_url query params se). Razorpay me ye teeno cheezein
+  // seedhe checkout modal ke "handler" callback se milti hain (koi URL
+  // parsing ki zaroorat nahi, kyunki koi redirect hi nahi hota).
+  async ({ razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId }) => {
     const response = await axios.post(
       `${import.meta.env.VITE_API_URL}/api/shop/order/capture`,
       {
-        paymentId,
-        payerId,
+        razorpay_order_id,
+        razorpay_payment_id,
+        razorpay_signature,
         orderId,
       }
     );
@@ -116,7 +127,15 @@ const shoppingOrderSlice = createSlice({
       })
       .addCase(createNewOrder.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.approvalURL = action.payload.approvalURL;
+
+        // NEW (Razorpay migration): approvalURL ki jagah ab ye 4 cheezein
+        // store karte hain — checkout.jsx inhi se Razorpay ka checkout modal
+        // banayega (window.Razorpay({key: keyId, amount, currency, order_id: razorpayOrderId, ...}))
+        state.razorpayOrderId = action.payload.razorpayOrderId;
+        state.amount = action.payload.amount;
+        state.currency = action.payload.currency;
+        state.keyId = action.payload.keyId;
+
         state.orderId = action.payload.orderId;
         sessionStorage.setItem(  // OrderId ko temporarily browser me save kar rahe ho taaki payment ke baad use kar sako
           "currentOrderId",  // It is just a key (name) in sessionStorage
@@ -125,43 +144,28 @@ const shoppingOrderSlice = createSlice({
 
 // 🧠 Problem samjho (kyun zaroori hai)
 
-// 👉 Flow kya hai:
+// 👉 Flow kya hai (Razorpay me):
 
 // Order create
 //    ↓
-// approvalURL milta hai
+// razorpayOrderId milta hai
 //    ↓
-// User PayPal pe redirect
+// Checkout modal khulta hai (isi page par, koi redirect nahi)
 //    ↓
-// User wapas aata hai (return_url)
+// User payment complete karta hai andar hi andar
 
-// 👉 ❗ Issue:
-// ➡️ Page reload ho gaya
-// ➡️ Redux state reset ho sakti hai
-
-// 🔥 Solution
-
-// 👉 Isliye:
-
-// sessionStorage.setItem("currentOrderId", ...)
-
-// ➡️ OrderId safe ho gaya browser me
-
-
-// Wapas kaise use hota hai?
-// const orderId = JSON.parse(
-//   sessionStorage.getItem("currentOrderId")
-// );
-
-// 👉 Jab user PayPal se wapas aata hai:
-// ➡️ isi orderId se payment capture karte ho
-
-// nhi kiya to ❌ OrderId lost ho jayega
+// 👉 Razorpay me full page reload/redirect nahi hota (PayPal jaisa),
+// isliye state ke lost hone ka risk kam hai — phir bhi sessionStorage me
+// orderId rakhna ek safe fallback hai (jaise agar user galti se page
+// refresh kar de payment ke dauraan).
 
       })
       .addCase(createNewOrder.rejected, (state) => {
         state.isLoading = false;
-        state.approvalURL = null;
+        state.razorpayOrderId = null;
+        state.amount = null;
+        state.currency = null;
+        state.keyId = null;
         state.orderId = null;
       })
       .addCase(getAllOrdersByUserId.pending, (state) => {

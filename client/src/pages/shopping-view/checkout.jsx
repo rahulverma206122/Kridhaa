@@ -5,17 +5,45 @@ import { useDispatch, useSelector } from "react-redux";
 import UserCartItemsContent from "@/components/shopping-view/cart-items-content";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { createNewOrder } from "@/store/shop/order-slice";
-import { Navigate } from "react-router-dom";
+import { createNewOrder, capturePayment } from "@/store/shop/order-slice"; // NEW: capturePayment ab yahi se call hoga (handler callback ke andar), pehle ye PaypalReturnPage.jsx se call hota tha
+import { fetchCartItems } from "@/store/shop/cart-slice"; // NEW BUG FIX: payment success ke baad cart Redux state ko refresh karne ke liye
+import { useNavigate } from "react-router-dom"; // NEW: Navigate ki jagah useNavigate — payment success hone par hum programmatically navigate karenge (koi redirect page ki zaroorat nahi)
 import { useToast } from "@/components/ui/use-toast";
+
+// NEW (Razorpay migration): Razorpay ka checkout widget ek <script> tag se
+// aata hai (https://checkout.razorpay.com/v1/checkout.js). Ye function us
+// script ko dynamically page me load karta hai (agar pehle se load nahi hai),
+// taaki humein index.html me manually <script> tag add na karna pade.
+function loadRazorpayScript() {
+  return new Promise((resolve) => {
+    if (document.getElementById("razorpay-checkout-script")) {
+      resolve(true); // already loaded hai, dobara load karne ki zaroorat nahi
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = "razorpay-checkout-script";
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
 
 function ShoppingCheckout() {
   const { cartItems } = useSelector((state) => state.shopCart);
   const { user } = useSelector((state) => state.auth);
-  const { approvalURL } = useSelector((state) => state.shopOrder);  // approvalURL shoporder slice me h 
+
+  // NEW (Razorpay migration): approvalURL ki jagah ab ye cheezein chahiye
+  // checkout modal kholne ke liye — sab shopOrder slice se hi aa rahe hain
+  const { razorpayOrderId, amount, currency, keyId } = useSelector(
+    (state) => state.shopOrder
+  );
+
   const [currentSelectedAddress, setCurrentSelectedAddress] = useState(null);  // how to know when do null false and 0 in usestate see in notes
   const [isPaymentStart, setIsPaymemntStart] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate(); // NEW
   const { toast } = useToast();
 
   const totalCartAmount =
@@ -31,7 +59,10 @@ function ShoppingCheckout() {
         )
       : 0;
 
-  function handleInitiatePaypalPayment() {
+  // NEW (Razorpay migration): renamed from handleInitiatePaypalPayment.
+  // Ab async hai kyunki humein Razorpay ka script load hone ka wait karna
+  // padta hai modal kholne se pehle.
+  async function handleInitiateRazorpayPayment() {
     if (cartItems.length === 0) {
       toast({
         title: "Your cart is empty. Please add items to proceed",
@@ -48,7 +79,7 @@ function ShoppingCheckout() {
 
       return;
     }
- // ye sari cheze order model se aari h 
+ // ye sari cheze order model se aari h
     const orderData = {
       userId: user?.id,
       cartId: cartItems?._id,
@@ -72,7 +103,7 @@ function ShoppingCheckout() {
         notes: currentSelectedAddress?.notes,
       },
       orderStatus: "pending",
-      paymentMethod: "paypal",
+      paymentMethod: "razorpay", // NEW: paypal → razorpay
       paymentStatus: "pending",
       totalAmount: totalCartAmount,
       orderDate: new Date(),// can we do date.now()  see in notes    creates a Date object (full date + time). 2026-04-25T14:30:45.123Z   If you want to store just the date without time, you can set the time to 00:00:00 using setHours(0, 0, 0, 0) method on the Date object. This way, you will have a Date object that represents only the date part without any time information.
@@ -80,7 +111,7 @@ function ShoppingCheckout() {
 
 // You want to store date properly in DB (like MongoDB)
 // You may need formatting, timezone handling, etc.
-      
+
       // Date.now() returns a timestamp (number) in milliseconds. 1714042245123
 
 //       👉 Used when:
@@ -89,14 +120,105 @@ function ShoppingCheckout() {
 // Not worried about date formatting
 
       orderUpdateDate: new Date(),
-      paymentId: "",
-      payerId: "",
+      // NEW: paymentId/payerId hata diye — Razorpay flow me ye baad me
+      // (payment complete hone ke baad) milte hain, create step par nahi
     };
 
-    dispatch(createNewOrder(orderData)).then((data) => {  // createneworder shop ke orderslice se dispatch kiya h
+    dispatch(createNewOrder(orderData)).then(async (data) => {  // createneworder shop ke orderslice se dispatch kiya h
       // console.log(data, "Rahul");  // yha se humm backend ko req bhej rhe h jo orderdata bnaya h uska pura data dekr ye req createneworeder bhej rha h
       if (data?.payload?.success) {
         setIsPaymemntStart(true);
+
+        // NEW (Razorpay migration): ab yaha se hum seedha checkout MODAL
+        // kholte hain (PayPal ki tarah kisi doosre page par redirect nahi
+        // karte).
+        const scriptLoaded = await loadRazorpayScript();
+
+        if (!scriptLoaded) {
+          toast({
+            title: "Razorpay SDK failed to load. Check your internet connection.",
+            variant: "destructive",
+          });
+          setIsPaymemntStart(false);
+          return;
+        }
+
+        const {
+          razorpayOrderId: newRazorpayOrderId,
+          amount: newAmount,
+          currency: newCurrency,
+          keyId: newKeyId,
+          orderId, // hamara apna Mongo order id
+        } = data.payload;
+
+        const options = {
+          key: newKeyId,
+          amount: newAmount,
+          currency: newCurrency,
+          name: "Kridha Jewellers", // apna brand name — checkout modal me dikhega
+          description: "Order Payment",
+          order_id: newRazorpayOrderId,
+
+          // NEW: ye woh "handler" callback hai jiski baat controller ke
+          // comments me ki thi — payment success hone par Razorpay ISI
+          // function ko call karta hai (koi redirect/return_url nahi
+          // chahiye, jaise PayPal me tha).
+          handler: function (response) {
+            dispatch(
+              capturePayment({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                orderId,
+              })
+            ).then((captureData) => {
+              if (captureData?.payload?.success) {
+                sessionStorage.removeItem("currentOrderId");
+
+                // NEW BUG FIX: backend ne cart delete kar diya hai
+                // (Cart.findByIdAndDelete in capturePayment controller),
+                // lekin Redux ka cartItems state abhi bhi purana (stale)
+                // data dikha raha tha kyunki humne use kabhi refresh hi
+                // nahi kiya. Isliye payment success hote hi cart ko
+                // dobara fetch karna zaroori hai — isse cart icon count
+                // aur cart page dono turant khali dikhenge.
+                dispatch(fetchCartItems(user?.id));
+
+                navigate("/shop/payment-success"); // same success page jo pehle tha
+              } else {
+                toast({
+                  title: "Payment verification failed. Please contact support.",
+                  variant: "destructive",
+                });
+                setIsPaymemntStart(false);
+              }
+            });
+          },
+
+          prefill: {
+            name: user?.userName,
+            contact: currentSelectedAddress?.phone,
+          },
+
+          notes: {
+            addressId: currentSelectedAddress?._id,
+          },
+
+          theme: {
+            color: "#155e75", // site ke cyan-800 accent color se match karta hai
+          },
+
+          modal: {
+            // NEW: agar user bina payment kiye modal band kar de, to button
+            // ko "Processing..." state me atka na chhodo — wapas normal karo
+            ondismiss: function () {
+              setIsPaymemntStart(false);
+            },
+          },
+        };
+
+        const razorpayObject = new window.Razorpay(options);
+        razorpayObject.open();
       } else {
         setIsPaymemntStart(false);
       }
@@ -114,25 +236,27 @@ function ShoppingCheckout() {
 
 // .then() is used to handle the response after API call finishes
 
-// 🔥 Flow (step-by-step)
+// 🔥 Flow (step-by-step, Razorpay version)
 // dispatch(createNewOrder(orderData))
 //         ↓
 // Redux thunk runs
 //         ↓
-// API call to backend
+// API call to backend → Razorpay order banta hai
 //         ↓
-// Response comes back
+// Response comes back (razorpayOrderId, amount, currency, keyId)
 //         ↓
-// .then((data) => { ... }) executes
+// Razorpay checkout MODAL khulta hai (yahi page par, koi redirect nahi)
+//         ↓
+// User modal ke andar payment karta hai
+//         ↓
+// Razorpay "handler" callback fire karta hai → capturePayment dispatch hota hai
+//         ↓
+// Verify + confirm ho jane par → payment-success page par navigate
 
-
-  if (approvalURL) { // if approvalurl present   // approvalURL shoporder slice me h
-    window.location.href = approvalURL; // window.location.href represents the current page’s full URL.“If approvalURL exists, redirect the user’s browser to that URL.”
-  }
-
-  // window.location.href = browser ke andar current page ka URL hota hai, jab hum ise kisi naye URL se set karte hain, to browser us naye URL par navigate kar jata hai. Yaha pe hum check kar rahe hain ki agar approvalURL available hai,
-  // to user ko us URL par redirect kar denge, jahan wo PayPal payment process complete kar sakta hai.
-  // Ye redirection tabhi hoga jab backend se hume PayPal ka approvalURL mil jayega, jo ki payment initiation ke response me aata hai.
+  // NEW: PayPal wala ye block hata diya —
+  //   if (approvalURL) { window.location.href = approvalURL; }
+  // Razorpay me koi approvalURL nahi hota, redirect ki zaroorat hi nahi —
+  // sab kuch handleInitiateRazorpayPayment ke andar hi ho jata hai.
 
   return (
     <div className="flex flex-col">
@@ -170,10 +294,10 @@ function ShoppingCheckout() {
             </div>
           </div>
           <div className="mt-4 w-full">
-            <Button onClick={handleInitiatePaypalPayment} className="w-full">
+            <Button onClick={handleInitiateRazorpayPayment} className="w-full">
               {isPaymentStart
-                ? "Processing Paypal Payment..."
-                : "Checkout with Paypal"}
+                ? "Processing Payment..."
+                : "Checkout with Razorpay"}
             </Button>
           </div>
         </div>

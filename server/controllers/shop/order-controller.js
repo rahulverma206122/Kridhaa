@@ -1,4 +1,5 @@
-const paypal = require("../../helpers/paypal");
+const crypto = require("crypto"); // NEW: Razorpay payment verify karne ke liye signature check karna padta hai — crypto Node ka built-in module hai isके liye
+const razorpayInstance = require("../../helpers/razorpay"); // NEW: paypal helper ki jagah razorpay instance
 const Order = require("../../models/Order");
 const Cart = require("../../models/Cart");
 const Product = require("../../models/Product");
@@ -15,104 +16,58 @@ const createOrder = async (req, res) => {
       totalAmount,
       orderDate,
       orderUpdateDate,
-      paymentId,
-      payerId,
       cartId,
-    } = req.body;  // ye sbhi ordermodel se aai h 
+    } = req.body;  // ye sbhi ordermodel se aai h
+    // NOTE: paymentId/payerId ab yaha se hata diye hain — Razorpay flow me
+    // ye cheezein (razorpay_payment_id, razorpay_signature) tabhi milti hain
+    // jab user payment complete karta hai, isliye create step par inki
+    // zaroorat nahi (capturePayment me aayenge).
 
-    const create_payment_json = {  // This is typically used with the PayPal REST API to create a payment.  Ye object PayPal ko batata hai payment ka structure kya hai
-      intent: "sale", 
+    // NEW (Razorpay migration):
+    // PayPal me humne `paypal.payment.create()` call karke ek "approval_url"
+    // liya tha, jispe user ko redirect karte the. Razorpay ka flow ALAG hai —
+    // yaha koi redirect nahi hota. Iski jagah hum:
+    // 1. Razorpay ka apna ek "order" banate hain (razorpayInstance.orders.create)
+    // 2. Us order ki id + amount frontend ko bhejte hain
+    // 3. Frontend Razorpay ka checkout.js MODAL (popup) kholta hai isi id ke sath
+    // 4. User modal ke andar hi payment karta hai (koi naya page/redirect nahi)
+    // 5. Success hone par Razorpay khud ek "handler" callback deta hai
+    //    (JS function), jisme humein razorpay_payment_id, razorpay_order_id,
+    //    aur razorpay_signature milte hain — ye teeno cheezein hum
+    //    capturePayment (neeche) ko bhejte hain taaki verify + confirm kar sakein.
 
-// "sale" → instant payment ✅
-// "authorize" → hold amount
-// "order" → confirm later
-      
-      payer: {
-        payment_method: "paypal",  // User PayPal se pay karega
-      },
-      redirect_urls: {
-        return_url: `${process.env.CLIENT_BASE_URL}/shop/paypal-return`,     //"http://localhost:5173/shop/paypal-return",  success hone ke baad user ko ye url pe bhejna hai
-        cancel_url: `${process.env.CLIENT_BASE_URL}/shop/paypal-cancel`,      // same for this 
-      },
-      transactions: [
-        {
-          item_list: {
-            items: cartItems.map((item) => ({
-              name: item.title,
-              sku: item.productId, // sku – a unique identifier, tracking ke liye use hota hai, productId ko sku ke roop me use karna ek common practice hai
-              price: item.price.toFixed(2),
-              currency: "USD",  //  paypal sendbox only accpet the usd payment latter on in live mode it automatically convert the usd in inr
-              quantity: item.quantity,
-            })),
-          },
-          amount: {
-            currency: "USD",
-            total: totalAmount.toFixed(2),  // limit the decimal places - 123.4632 -> 123.46
-          },
-          description: "description",
-        },
-      ],
-    };
+    // Razorpay amount hamesha "smallest currency unit" me leta hai — INR ke
+    // liye paise. Isliye totalAmount (rupees) ko 100 se multiply karna zaroori
+    // hai, warna Razorpay 100x kam amount charge kar dega.
+    const razorpayOrder = await razorpayInstance.orders.create({
+      amount: Math.round(totalAmount * 100), // paise me convert
+      currency: "INR",
+      receipt: `receipt_${Date.now()}`, // apna internal reference; Order._id abhi tak bana nahi hai isliye timestamp use kiya
+    });
 
-    paypal.payment.create(create_payment_json, async (error, paymentInfo) => {
+    const newlyCreatedOrder = new Order({
+      userId,
+      cartId,
+      cartItems,
+      addressInfo,
+      orderStatus,
+      paymentMethod, // ab ye "razorpay" hoga (checkout.jsx se aayega)
+      paymentStatus,
+      totalAmount,
+      orderDate,
+      orderUpdateDate,
+      razorpayOrderId: razorpayOrder.id, // NEW: Razorpay ka apna order id store kar rahe hain
+    });
 
-// paypal.payment.create(...)
-// 👉 Ye PayPal SDK ka function hai
+    await newlyCreatedOrder.save();
 
-// 👉 Kaam:
-// PayPal server ko request bhejna (payment create karne ke liye)
-
-      if (error) {
-       // console.log(error);
-
-        return res.status(500).json({
-          success: false,
-          message: "Error while creating paypal payment",
-        });
-      } else {
-        const newlyCreatedOrder = new Order({
-          userId,
-          cartId,
-          cartItems,
-          addressInfo,
-          orderStatus,
-          paymentMethod,
-          paymentStatus,
-          totalAmount,
-          orderDate,
-          orderUpdateDate,
-          paymentId,
-          payerId,
-        });
-
-        await newlyCreatedOrder.save();
-
-        const approvalURL = paymentInfo.links.find(
-          (link) => link.rel === "approval_url"
-        ).href;
-
-
-//         Pehle samjho paymentInfo.links kya hai
-
-// 👉 PayPal response me ek array aata hai:
-
-// paymentInfo.links = [
-//   { rel: "self", href: "..." },
-//   { rel: "approval_url", href: "https://paypal.com/approve" },
-//   { rel: "execute", href: "..." }
-// ];
-
-// 👉 Har object me:
-
-// rel → link ka type
-// href → actual URL
-
-        res.status(201).json({  // 201 means created
-          success: true,
-          approvalURL,
-          orderId: newlyCreatedOrder._id,
-        });
-      }
+    res.status(201).json({  // 201 means created
+      success: true,
+      razorpayOrderId: razorpayOrder.id, // NEW: frontend isi id se checkout modal kholega
+      amount: razorpayOrder.amount, // paise me (Razorpay checkout ko yehi chahiye)
+      currency: razorpayOrder.currency,
+      keyId: process.env.RAZORPAY_KEY_ID, // NEW: checkout.js ko public key chahiye hoti hai frontend par
+      orderId: newlyCreatedOrder._id, // hamara apna Mongo order id (jaise pehle tha)
     });
   } catch (e) {
    // console.log(e);
@@ -124,11 +79,38 @@ const createOrder = async (req, res) => {
 };
 
 // the uppar code only create the order not make it successfull
-// User order place kar raha hai → tum PayPal payment create kar rahe ho → order DB me save kar rahe ho → user ko PayPal pe bhej rahe ho
+// User order place kar raha hai → tum Razorpay order create kar rahe ho → order DB me save kar rahe ho → frontend Razorpay ka checkout modal kholta hai
 
 const capturePayment = async (req, res) => {
   try {
-    const { paymentId, payerId, orderId } = req.body;
+    // NEW (Razorpay migration): PayPal me paymentId/payerId aate the.
+    // Razorpay me teen cheezein aati hain: razorpay_order_id,
+    // razorpay_payment_id, aur razorpay_signature — ye signature hi security
+    // ka core hai, isse hum verify karte hain ki payment genuinely Razorpay
+    // se aayi hai, tampered nahi hai.
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      orderId, // hamara apna Mongo order id (jaise pehle tha)
+    } = req.body;
+
+    // NEW: Signature verify karna — ye Razorpay ka official recommended
+    // security step hai. Hum apni Key Secret se ek HMAC SHA256 signature
+    // generate karte hain (order_id + "|" + payment_id se), aur usko
+    // Razorpay ne jo signature bheja hai usse compare karte hain. Agar match
+    // nahi hua, matlab request fake/tampered ho sakti hai — reject kar do.
+    const generatedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest("hex");
+
+    if (generatedSignature !== razorpay_signature) {
+      return res.status(400).json({
+        success: false,
+        message: "Payment verification failed. Signature mismatch.",
+      });
+    }
 
     let order = await Order.findById(orderId);
 
@@ -141,8 +123,8 @@ const capturePayment = async (req, res) => {
 
     order.paymentStatus = "paid";
     order.orderStatus = "confirmed";
-    order.paymentId = paymentId;
-    order.payerId = payerId;
+    order.razorpayPaymentId = razorpay_payment_id; // NEW: paymentId/payerId ki jagah
+    order.razorpaySignature = razorpay_signature; // NEW: aage verification/refund ke liye record rakhna acha practice hai
 
 // 🔹 Real purpose of this whole loop
 

@@ -1,5 +1,9 @@
 {
   "dependencies": {
-    "cloudinary": "^2.7.0"
+    "@google/genai": "^2.20.0",
+    "axios": "^1.20.0",
+    "cloudinary": "^2.7.0",
+    "multer": "^2.3.0",
+    "razorpay": "^2.9.8"
   }
 }
