@@ -361,7 +361,8 @@ function AIJewelryAssistant() {
                   >
 
                     <img
-                      src={product.image}
+                     // src={product.image}
+                      src={product?.image?.replace(/^http:\/\//i, "https://")}
                       alt={product.title}
                       className="
                         w-full
