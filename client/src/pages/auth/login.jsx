@@ -25,6 +25,12 @@ const initialState = {
 };
 
 function AuthLogin() {
+
+  console.log(
+  "DEPLOYED GOOGLE CLIENT ID:",
+  import.meta.env.VITE_GOOGLE_CLIENT_ID
+);
+
   const [formData, setFormData] = useState(initialState);
   const dispatch = useDispatch();
   const { toast } = useToast();
