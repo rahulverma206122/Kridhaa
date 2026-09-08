@@ -88,23 +88,23 @@ function RecommendedProducts({
 
             <button
               onClick={handlePrevious}
-              className="w-10 h-10 rounded-full border
+              className="w-9 h-9 md:w-10 md:h-10 rounded-full border
               bg-white shadow-sm
               hover:bg-gray-100
               flex items-center justify-center
-              text-xl transition"
+              text-lg md:text-xl transition"
             >
               ←
             </button>
 
             <button
               onClick={handleNext}
-              className="w-10 h-10 rounded-full
+              className="w-9 h-9 md:w-10 md:h-10 rounded-full
               bg-cyan-800 text-white
               shadow-sm
               hover:bg-cyan-700
               flex items-center justify-center
-              text-xl transition"
+              text-lg md:text-xl transition"
             >
               →
             </button>
@@ -118,7 +118,7 @@ function RecommendedProducts({
           ref={sliderRef}
           className="
             flex
-            gap-6
+            gap-3 md:gap-6
             overflow-x-auto
             scroll-smooth
             snap-x
@@ -135,16 +135,16 @@ function RecommendedProducts({
           {products.map((product) => (
 
             <div
-  key={product._id}
-  className="
-    flex-none
-    w-[calc((100%-120px)/5)]
-    snap-start
-    max-lg:w-[calc((100%-80px)/4)]
-    max-md:w-[calc((100%-24px)/2)]
-    max-sm:w-full
-  "
->
+              key={product._id}
+              className="
+                flex-none
+                w-[31%]
+                snap-start
+                sm:w-[48%]
+                md:w-[calc((100%-80px)/4)]
+                lg:w-[calc((100%-96px)/5)]
+              "
+            >
 
               <ShoppingProductTile
 
@@ -157,7 +157,8 @@ function RecommendedProducts({
                 handleAddtoCart={
                   handleAddtoCart
                 }
-            compact={true} // NEW: compact mode for smaller tiles
+
+                compact={true} // NEW: compact mode for smaller tiles
               />
 
             </div>

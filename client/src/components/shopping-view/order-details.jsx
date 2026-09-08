@@ -8,49 +8,96 @@ function ShoppingOrderDetailsView({ orderDetails }) {
   const { user } = useSelector((state) => state.auth);
 
   return (
-    <DialogContent className="sm:max-w-[600px]">
-      <div className="grid gap-6">
-        <div className="grid gap-2">
-          <div className="flex mt-6 items-center justify-between">
-            <p className="font-medium">Order ID</p>
-            <Label>{orderDetails?._id}</Label>
+    <DialogContent
+  className="
+    w-[88vw]
+    max-w-[380px]
+    max-h-[82vh]
+    overflow-y-auto
+    p-3
+    sm:max-w-[600px]
+    sm:max-h-none
+    sm:overflow-visible
+    sm:p-6
+  "
+>
+      <div className="grid gap-4 sm:gap-6">
+
+        {/* Order Summary */}
+        <div className="grid gap-1 sm:gap-2">
+
+          <div className="flex mt-4 sm:mt-6 items-start justify-between gap-3">
+            <p className="font-medium text-sm sm:text-base whitespace-nowrap">
+              Order ID
+            </p>
+
+            <Label className="text-xs sm:text-base text-right break-all">
+              {orderDetails?._id}
+            </Label>
           </div>
-          <div className="flex mt-2 items-center justify-between">
-            <p className="font-medium">Order Date</p>
-            <Label>{orderDetails?.orderDate.split("T")[0]}</Label>  
- 
- {/* 🔥 Problem kya hai?
 
-👉 orderDate usually aata hai ISO format me:
+          <div className="flex mt-2 items-center justify-between gap-3">
+            <p className="font-medium text-sm sm:text-base whitespace-nowrap">
+              Order Date
+            </p>
 
-2026-04-25T14:30:45.123Z
+            <Label className="text-xs sm:text-base whitespace-nowrap">
+              {orderDetails?.orderDate.split("T")[0]}
+            </Label>
 
-👉 Isme:
+            {/* 🔥 Problem kya hai?
 
-Date + Time dono hote hain
-But UI me hume sirf date chahiye */}
+            👉 orderDate usually aata hai ISO format me:
 
-{/*result - ["2026-04-25", "14:30:45.123Z"] */}
+            2026-04-25T14:30:45.123Z
 
+            👉 Isme:
+
+            Date + Time dono hote hain
+            But UI me hume sirf date chahiye */}
+
+            {/*result - ["2026-04-25", "14:30:45.123Z"] */}
 
           </div>
-          <div className="flex mt-2 items-center justify-between">
-            <p className="font-medium">Order Price</p>
-            <Label>₹{orderDetails?.totalAmount}</Label>
+
+          <div className="flex mt-2 items-center justify-between gap-3">
+            <p className="font-medium text-sm sm:text-base">
+              Order Price
+            </p>
+
+            <Label className="text-xs sm:text-base whitespace-nowrap">
+              ₹{orderDetails?.totalAmount}
+            </Label>
           </div>
-          <div className="flex mt-2 items-center justify-between">
-            <p className="font-medium">Payment method</p>
-            <Label>{orderDetails?.paymentMethod}</Label>
+
+          <div className="flex mt-2 items-center justify-between gap-3">
+            <p className="font-medium text-sm sm:text-base">
+              Payment method
+            </p>
+
+            <Label className="text-xs sm:text-base">
+              {orderDetails?.paymentMethod}
+            </Label>
           </div>
-          <div className="flex mt-2 items-center justify-between">
-            <p className="font-medium">Payment Status</p>
-            <Label>{orderDetails?.paymentStatus}</Label>
+
+          <div className="flex mt-2 items-center justify-between gap-3">
+            <p className="font-medium text-sm sm:text-base">
+              Payment Status
+            </p>
+
+            <Label className="text-xs sm:text-base">
+              {orderDetails?.paymentStatus}
+            </Label>
           </div>
-          <div className="flex mt-2 items-center justify-between">
-            <p className="font-medium">Order Status</p>
+
+          <div className="flex mt-2 items-center justify-between gap-3">
+            <p className="font-medium text-sm sm:text-base">
+              Order Status
+            </p>
+
             <Label>
               <Badge
-                className={`py-1 px-3 ${
+                className={`py-1 px-2 sm:px-3 text-xs sm:text-sm ${
                   orderDetails?.orderStatus === "confirmed"
                     ? "bg-green-500"
                     : orderDetails?.orderStatus === "rejected"
@@ -62,37 +109,93 @@ But UI me hume sirf date chahiye */}
               </Badge>
             </Label>
           </div>
+
         </div>
+
         <Separator />
-        <div className="grid gap-4">
+
+        {/* Order Details */}
+        <div className="grid gap-3 sm:gap-4">
+
           <div className="grid gap-2">
-            <div className="font-medium">Order Details</div>
-            <ul className="grid gap-3">
-              {orderDetails?.cartItems && orderDetails?.cartItems.length > 0
-                ? orderDetails?.cartItems.map((item) => (
-                    <li className="flex items-center justify-between">
-                      <span>Title: {item.title}</span>
-                      <span>Quantity: {item.quantity}</span>
-                      <span>Price: ₹{item.price}</span>
+
+            <div className="font-medium text-sm sm:text-base">
+              Order Details
+            </div>
+
+            <ul className="grid gap-2 sm:gap-3">
+
+              {orderDetails?.cartItems &&
+              orderDetails?.cartItems.length > 0
+                ? orderDetails?.cartItems.map((item, index) => (
+
+                    <li
+                      key={item?.productId || index}
+                      className="
+                        flex
+                        flex-col
+                        gap-1
+                        rounded-md
+                        border
+                        p-2
+                        text-xs
+                        sm:flex-row
+                        sm:items-center
+                        sm:justify-between
+                        sm:gap-3
+                        sm:border-0
+                        sm:p-0
+                        sm:text-base
+                      "
+                    >
+
+                      <span className="font-medium break-words">
+                        Title: {item.title}
+                      </span>
+
+                      <div className="flex justify-between gap-3 sm:gap-4">
+                        <span className="whitespace-nowrap">
+                          Quantity: {item.quantity}
+                        </span>
+
+                        <span className="whitespace-nowrap">
+                          Price: ₹{item.price}
+                        </span>
+                      </div>
+
                     </li>
+
                   ))
                 : null}
+
             </ul>
+
           </div>
+
         </div>
-        <div className="grid gap-4">
+
+        {/* Shipping Info */}
+        <div className="grid gap-3 sm:gap-4">
+
           <div className="grid gap-2">
-            <div className="font-medium">Shipping Info</div>
-            <div className="grid gap-0.5 text-muted-foreground">
-              <span>{user.userName}</span>
+
+            <div className="font-medium text-sm sm:text-base">
+              Shipping Info
+            </div>
+
+            <div className="grid gap-0.5 text-xs sm:text-base text-muted-foreground break-words">
+              <span>{user?.userName}</span>
               <span>{orderDetails?.addressInfo?.address}</span>
               <span>{orderDetails?.addressInfo?.city}</span>
               <span>{orderDetails?.addressInfo?.pincode}</span>
               <span>{orderDetails?.addressInfo?.phone}</span>
               <span>{orderDetails?.addressInfo?.notes}</span>
             </div>
+
           </div>
+
         </div>
+
       </div>
     </DialogContent>
   );

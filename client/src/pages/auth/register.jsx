@@ -51,10 +51,13 @@ function AuthRegister() {
 
   return (
     <div className="mx-auto w-full max-w-md space-y-6">
+
+
       <div className="text-center">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">
           Create new account
         </h1>
+
         <p className="mt-2">
           Already have an account
           <Link
@@ -73,7 +76,19 @@ function AuthRegister() {
         setFormData={setFormData}
         onSubmit={onSubmit}
       />
+
+{/* 🔥 Back to Home button */}
+      <div className="text-left">
+        <Link
+          to="/shop/home"
+          className="inline-flex items-center text-sm font-medium text-gray-600 hover:text-black hover:underline"
+        >
+          ← Back to Home
+        </Link>
+      </div>
+
     </div>
+    
   );
 }
 

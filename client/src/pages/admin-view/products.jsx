@@ -32,7 +32,8 @@ const initialFormData = {
 };
 
 function AdminProducts() {
-  const [openCreateProductsDialog, setOpenCreateProductsDialog] = useState(false);
+  const [openCreateProductsDialog, setOpenCreateProductsDialog] =
+    useState(false);
   const [formData, setFormData] = useState(initialFormData);
   const [imageFile, setImageFile] = useState(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
@@ -53,7 +54,7 @@ function AdminProducts() {
             formData,
           })
         ).then((data) => {
-        //  console.log(data, "edit");
+          // console.log(data, "edit");
 
           if (data?.payload?.success) {
             dispatch(fetchAllProducts());
@@ -103,16 +104,34 @@ function AdminProducts() {
 
   return (
     // <Fragment>  👉 <Fragment> (ya <> </>) use hota hai multiple elements ko group karne ke liye WITHOUT extra HTML tag
-      <Fragment>
+    <Fragment>
+
+      {/* Add New Product Button */}
       <div className="mb-5 w-full flex justify-end">
-        <Button onClick={() => setOpenCreateProductsDialog(true)}>
+        <Button
+          onClick={() => setOpenCreateProductsDialog(true)}
+          className="text-sm sm:text-base"
+        >
           Add New Product
         </Button>
       </div>
-      <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
+
+      {/* =========================================================
+          PRODUCT GRID
+
+          📱 Mobile  -> 2 cards
+          📱 Small   -> 2 cards
+          💻 Medium  -> 3 cards
+          🖥️ Large   -> 4 cards
+
+          Desktop layout remains same.
+          ========================================================= */}
+
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
         {productList && productList.length > 0
           ? productList.map((productItem) => (
               <AdminProductTile
+                key={productItem?._id}
                 setFormData={setFormData}
                 setOpenCreateProductsDialog={setOpenCreateProductsDialog}
                 setCurrentEditedId={setCurrentEditedId}
@@ -122,6 +141,8 @@ function AdminProducts() {
             ))
           : null}
       </div>
+
+      {/* Add / Edit Product Sheet */}
       <Sheet
         open={openCreateProductsDialog}
         onOpenChange={() => {
@@ -130,12 +151,18 @@ function AdminProducts() {
           setFormData(initialFormData);
         }}
       >
-        <SheetContent side="right" className="overflow-auto">
+        <SheetContent
+          side="right"
+          className="w-[90vw] max-w-md overflow-auto sm:w-full"
+        >
           <SheetHeader>
             <SheetTitle>
-              {currentEditedId !== null ? "Edit Product" : "Add New Product"}
+              {currentEditedId !== null
+                ? "Edit Product"
+                : "Add New Product"}
             </SheetTitle>
           </SheetHeader>
+
           <ProductImageUpload
             imageFile={imageFile}
             setImageFile={setImageFile}
@@ -145,6 +172,7 @@ function AdminProducts() {
             imageLoadingState={imageLoadingState}
             isEditMode={currentEditedId !== null}
           />
+
           <div className="py-6">
             <CommonForm
               onSubmit={onSubmit}
@@ -157,6 +185,7 @@ function AdminProducts() {
           </div>
         </SheetContent>
       </Sheet>
+
     </Fragment>
   );
 }

@@ -183,13 +183,13 @@ function ShoppingListing() {
             </DropdownMenu>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-          {productList && productList.length > 0
+<div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 p-3 md:p-4">          {productList && productList.length > 0
             ? productList.map((productItem) => (
                 <ShoppingProductTile // ye shop ke product.tile se aaya h jo product card ko dikhata h  
                   handleGetProductDetails={handleGetProductDetails}  // ye sare shopingproducttile ke props h 
                   product={productItem} // ye functions hmne yhi bnai h or as a prop waha(shopingproducttile) pass kiye h,  handleGetProductDetails, product, handleAddtoCart are called props (properties). You are passing props into the ShoppingProductTile component.
                   handleAddtoCart={handleAddtoCart}
+                  mobileCompact={true}
                 />
               ))
             : null}

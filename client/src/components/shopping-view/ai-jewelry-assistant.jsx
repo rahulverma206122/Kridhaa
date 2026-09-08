@@ -66,8 +66,8 @@ function AIJewelryAssistant() {
 
   // NEW: fetch product by id independently (NOT via Redux fetchProductDetails),
   // store it in local state, then open our own dialog. Same API endpoint that
-  // fetchProductDetails in products-slice.js uses, just called directly here so
-  // it never touches the shared global productDetails.
+  // fetchProductDetails in products-slice.js uses, just called directly here so it
+  // never touches the shared global productDetails.
   async function handleGetProductDetails(getCurrentProductId) {
     try {
       setIsProductLoading(true);
@@ -91,90 +91,186 @@ function AIJewelryAssistant() {
 
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full
-        bg-cyan-800 hover:bg-cyan-700
-        text-white shadow-2xl
-        flex items-center justify-center
-        transition-all duration-300 hover:scale-110"
+        className="
+          fixed
+          bottom-4 right-4
+          md:bottom-6 md:right-6
+          z-50
+          w-14 h-14
+          md:w-16 md:h-16
+          rounded-full
+          bg-cyan-800 hover:bg-cyan-700
+          text-white
+          shadow-2xl
+          flex items-center justify-center
+          transition-all duration-300
+          hover:scale-110
+        "
       >
         {isOpen ? (
-          <X size={28} />
+          <X
+            size={24}
+            className="md:w-7 md:h-7"
+          />
         ) : (
-          <Sparkles size={28} />
+          <Sparkles
+            size={24}
+            className="md:w-7 md:h-7"
+          />
         )}
       </button>
+
 
       {/* CHAT WINDOW */}
 
       {isOpen && (
         <div
-          className="fixed bottom-24 right-6 z-50
-          w-[380px] h-[550px]
-          bg-white rounded-2xl shadow-2xl
-          border flex flex-col overflow-hidden"
+          className="
+            fixed
+            bottom-[84px]
+            right-3
+            z-50
+
+            w-[calc(100vw-24px)]
+            h-[70vh]
+            max-h-[600px]
+            min-h-[420px]
+
+            md:bottom-24
+            md:right-6
+            md:w-[380px]
+            md:h-[550px]
+            md:max-h-none
+            md:min-h-0
+
+            bg-white
+            rounded-2xl
+            shadow-2xl
+            border
+            flex flex-col
+            overflow-hidden
+          "
         >
 
           {/* HEADER */}
 
           <div
-            className="bg-cyan-800 text-white
-            p-4 flex items-center gap-3"
+            className="
+              bg-cyan-800
+              text-white
+              p-3
+              md:p-4
+              flex items-center
+              gap-2
+              md:gap-3
+              shrink-0
+            "
           >
             <div
-              className="w-10 h-10 rounded-full
-              bg-white/20 flex items-center justify-center"
+              className="
+                w-9 h-9
+                md:w-10 md:h-10
+                rounded-full
+                bg-white/20
+                flex items-center
+                justify-center
+                shrink-0
+              "
             >
-              <Bot size={22} />
+              <Bot
+                size={20}
+                className="md:w-[22px] md:h-[22px]"
+              />
             </div>
 
-            <div>
-              <h2 className="font-semibold">
+            <div className="min-w-0">
+              <h2 className="font-semibold text-base md:text-lg">
                 AI Jewelry Assistant
               </h2>
 
-              <p className="text-xs text-white/70">
+              <p className="text-[11px] md:text-xs text-white/70">
                 Ask me anything about jewelry
               </p>
             </div>
           </div>
 
+
           {/* CHAT MESSAGES */}
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div
+            className="
+              flex-1
+              overflow-y-auto
+              p-3
+              md:p-4
+              space-y-3
+              md:space-y-4
+            "
+          >
 
             {messages.length === 0 && (
-              <div className="text-center text-gray-500 mt-10">
+              <div className="text-center text-gray-500 mt-6 md:mt-10">
 
                 <Bot
-                  size={40}
-                  className="mx-auto mb-3 text-cyan-700"
+                  size={36}
+                  className="
+                    mx-auto
+                    mb-3
+                    text-cyan-700
+                    md:w-10 md:h-10
+                  "
                 />
 
-                <p className="font-medium">
+                <p className="font-medium text-sm md:text-base">
                   Hi! I'm your AI Jewelry Assistant ✨
                 </p>
 
-                <p className="text-sm mt-2">
+                <p className="text-xs md:text-sm mt-2">
                   Try asking:
                 </p>
 
-                <div className="mt-4 space-y-2">
+                <div className="mt-3 md:mt-4 space-y-2">
 
-                  <p className="text-sm bg-gray-100 p-2 rounded-lg">
+                  <p
+                    className="
+                      text-xs md:text-sm
+                      bg-gray-100
+                      p-2
+                      md:p-2.5
+                      rounded-lg
+                    "
+                  >
                     "Show me a 22K ring"
                   </p>
 
-                  <p className="text-sm bg-gray-100 p-2 rounded-lg">
+                  <p
+                    className="
+                      text-xs md:text-sm
+                      bg-gray-100
+                      p-2
+                      md:p-2.5
+                      rounded-lg
+                    "
+                  >
                     "Jewelry under ₹50,000"
                   </p>
 
-                  <p className="text-sm bg-gray-100 p-2 rounded-lg">
+                  <p
+                    className="
+                      text-xs md:text-sm
+                      bg-gray-100
+                      p-2
+                      md:p-2.5
+                      rounded-lg
+                    "
+                  >
                     "Suggest something for my mother"
                   </p>
 
                 </div>
               </div>
             )}
+
 
             {messages.map((msg, index) => (
               <div
@@ -187,11 +283,20 @@ function AIJewelryAssistant() {
               >
 
                 <div
-                  className={`max-w-[75%] p-3 rounded-2xl text-sm ${
-                    msg.role === "user"
-                      ? "bg-cyan-800 text-white rounded-br-none"
-                      : "bg-gray-100 text-gray-800 rounded-bl-none"
-                  }`}
+                  className={`
+                    max-w-[82%]
+                    md:max-w-[75%]
+                    p-2.5
+                    md:p-3
+                    rounded-2xl
+                    text-xs
+                    md:text-sm
+                    ${
+                      msg.role === "user"
+                        ? "bg-cyan-800 text-white rounded-br-none"
+                        : "bg-gray-100 text-gray-800 rounded-bl-none"
+                    }
+                  `}
                 >
                   {msg.text}
                 </div>
@@ -199,12 +304,22 @@ function AIJewelryAssistant() {
               </div>
             ))}
 
+
             {/* LOADING */}
 
             {isLoading && (
               <div className="flex justify-start">
 
-                <div className="bg-gray-100 p-3 rounded-2xl">
+                <div
+                  className="
+                    bg-gray-100
+                    p-2.5
+                    md:p-3
+                    rounded-2xl
+                    text-xs
+                    md:text-sm
+                  "
+                >
                   <span className="animate-pulse">
                     AI is thinking...
                   </span>
@@ -213,37 +328,74 @@ function AIJewelryAssistant() {
               </div>
             )}
 
+
             {/* RECOMMENDED PRODUCTS */}
 
             {recommendedProducts.length > 0 && (
-              <div className="grid grid-cols-2 gap-3">
+              <div
+                className="
+                  grid
+                  grid-cols-2
+                  gap-2
+                  md:gap-3
+                "
+              >
 
                 {recommendedProducts.map((product) => (
 
                   <div
                     key={product._id}
-                    onClick={() => handleGetProductDetails(product?._id)} // NEW: opens ProductDetailsDialog, same as ShoppingProductTile
-                    className="border rounded-xl overflow-hidden
-                    hover:shadow-lg transition cursor-pointer" // NEW: cursor-pointer to hint it's clickable
+                    onClick={() =>
+                      handleGetProductDetails(product?._id)
+                    } // NEW: opens ProductDetailsDialog, same as ShoppingProductTile
+                    className="
+                      border
+                      rounded-lg
+                      md:rounded-xl
+                      overflow-hidden
+                      hover:shadow-lg
+                      transition
+                      cursor-pointer
+                      bg-white
+                    " // NEW: cursor-pointer to hint it's clickable
                   >
 
                     <img
                       src={product.image}
                       alt={product.title}
-                      className="w-full h-28 object-cover"
+                      className="
+                        w-full
+                        h-24
+                        md:h-28
+                        object-cover
+                      "
                     />
 
-                    <div className="p-2">
+                    <div className="p-1.5 md:p-2">
 
-                      <p className="font-semibold text-xs line-clamp-1">
+                      <p
+                        className="
+                          font-semibold
+                          text-[11px]
+                          md:text-xs
+                          line-clamp-1
+                        "
+                      >
                         {product.title}
                       </p>
 
-                      <p className="text-xs text-gray-500">
+                      <p className="text-[10px] md:text-xs text-gray-500">
                         {product.carat}
                       </p>
 
-                      <p className="font-bold text-sm text-cyan-800">
+                      <p
+                        className="
+                          font-bold
+                          text-xs
+                          md:text-sm
+                          text-cyan-800
+                        "
+                      >
                         ₹{product.salePrice > 0
                           ? product.salePrice
                           : product.price}
@@ -260,9 +412,20 @@ function AIJewelryAssistant() {
 
           </div>
 
+
           {/* INPUT */}
 
-          <div className="border-t p-3 flex gap-2">
+          <div
+            className="
+              border-t
+              p-2.5
+              md:p-3
+              flex
+              gap-2
+              shrink-0
+              bg-white
+            "
+          >
 
             <input
               value={message}
@@ -271,23 +434,47 @@ function AIJewelryAssistant() {
               }
               onKeyDown={handleKeyDown}
               placeholder="Ask about jewelry..."
-              className="flex-1 border rounded-xl px-3 py-2
-              outline-none focus:ring-2 focus:ring-cyan-700"
+              className="
+                flex-1
+                min-w-0
+                border
+                rounded-xl
+                px-3
+                py-2
+                md:py-2.5
+                text-sm
+                md:text-base
+                outline-none
+                focus:ring-2
+                focus:ring-cyan-700
+              "
             />
 
             <button
               onClick={handleSendMessage}
               disabled={isLoading}
-              className="bg-cyan-800 text-white
-              p-3 rounded-xl hover:bg-cyan-700"
+              className="
+                bg-cyan-800
+                text-white
+                p-2.5
+                md:p-3
+                rounded-xl
+                hover:bg-cyan-700
+                shrink-0
+                disabled:opacity-50
+              "
             >
-              <Send size={18} />
+              <Send
+                size={17}
+                className="md:w-[18px] md:h-[18px]"
+              />
             </button>
 
           </div>
 
         </div>
       )}
+
 
       {/* NEW: same dialog component used in listing.jsx/ShoppingHome, reused here so
           product data/reviews/add-to-cart all work identically. Rendered UNCONDITIONALLY
@@ -296,6 +483,7 @@ function AIJewelryAssistant() {
           NOT from global Redux — this is what prevents ShoppingHome/ShoppingListing's
           `useEffect(() => { if (productDetails !== null) setOpenDetailsDialog(true) })`
           from also firing and opening a second, separate dialog underneath this one. */}
+
       <ProductDetailsDialog
         open={openDetailsDialog}
         setOpen={setOpenDetailsDialog}

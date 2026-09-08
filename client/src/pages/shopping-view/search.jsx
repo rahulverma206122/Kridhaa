@@ -98,14 +98,14 @@ function SearchProducts() {
         </div>
       </div>
       {!searchResults.length ? (
-        <h1 className="text-5xl font-extrabold">No result found!</h1>
+        <h1 className="text-2xl md:text-5xl font-extrabold">No result found!</h1>
       ) : null}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-        {searchResults.map((item) => (
+<div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 p-3 md:p-4">        {searchResults.map((item) => (
           <ShoppingProductTile
             handleAddtoCart={handleAddtoCart}
             product={item}
             handleGetProductDetails={handleGetProductDetails}
+            mobileCompact={true}
           />
         ))}
       </div>

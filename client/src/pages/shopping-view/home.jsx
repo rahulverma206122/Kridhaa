@@ -85,6 +85,7 @@ const caratsWithIcon = [
   { id: "k24", label: "24 K", image: h },
   { id: "silver", label: "92.5", image: h },
 ];
+
 const videoWithIcon = [
   { id: "v1", label: "", video: v6 },
   { id: "v2", label: "", video: v2 },
@@ -114,15 +115,16 @@ function ShoppingHome() {
   const { user } = useSelector((state) => state.auth);
 
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // useNavigate() hook React Router v6 ka part hai, jo ki functional components me navigation handle karne ke liye use hota hai. Ye hook ek function return karta hai jise hum navigate() ke naam se use karte hain, jiska use karke hum programmatically kisi bhi route par navigate kar sakte hain. 
-  // Jaise ki jab user kisi category ya product par click kare, to hum navigate() function ka use karke us specific listing page ya product details page par le ja sakte hain, bina kisi link ke click ke. Ye dynamic navigation ke liye bahut useful hota hai, especially jab aapko user actions ke basis par different pages par le jana ho.
-  const { toast } = useToast(); // useToast() custom hook hai jo ki toast notifications ko handle karta hai. Ye hook ek object return karta hai jisme toast function hota hai, jiska use karke hum apne application me toast messages show kar sakte hain. Jaise ki jab user koi product cart me add kare, to hum toast() function ka use karke ek success message show kar sakte hain, jisse user ko feedback mile ki unka action successful tha. Ye user experience ko enhance karta hai aur users ko important information provide karta hai without disrupting their workflow.
+  const navigate = useNavigate(); // useNavigate() hook React Router v6 ka part hai, jo ki functional components me navigation handle karne ke liye use hota hai. Ye hook ek function return karta hai jise navigate() ke naam se use karte hain, jiska use karke aap programmatically kisi bhi route par navigation handle kar sakte hain. Ye hook ek function return karta hai jise navigate() ke naam se use karte hain, jiska use karke aap programmatically kisi bhi route par le ja sakte hain, bina kisi link ke click ke. Ye dynamic navigation ke liye bahut useful hota hai, especially jab aapko user actions ke basis par different pages par le jana ho.
+  // Jaise ki jab user kisi category ya product par click kare, to wo navigate() function specific route par le jaata hai, bina kisi full page reload ke. 
+
+  const { toast } = useToast(); // useToast() custom hook hai jo ki toast notifications ko handle karta hai. Ye hook ek object return karta hai jisme toast function hota hai, jiska use karke aap apne application me toast messages show kar sakte ho. Jaise ki jab user product cart me add kare, to toast() function se success message show kar sakte ho, jisse user ko feedback milega.
 
   function handleNavigateToListingPage(getCurrentItem, section) {
     sessionStorage.removeItem("filters");  // first we clear the session storage mtlb jo bhi filter lga ho phle use clear krdo
     const currentFilter = {
       [section]: [getCurrentItem.id], //  Create a new filter object  {"carat":[101]}
-    };  // why we use []:It means the key name will be taken from the variable section.jab [] lag jate h to we chez veriable ho jati h agar ye na lage to section hmesa section hi rhega kbhi carat ya catogory nhi bnega
+    };  // why we use []:It means the key name will be taken from the variable section.jab [] lag jate h to wo cheez variable ho jati hai agar ye na lage to section hamesha section hi rhega kabhi carat ya category nhi banega
    // [getCurrentItem.id] → can remove [] it rep the array , but only if you don’t need multiple values in that filter.
     sessionStorage.setItem("filters", JSON.stringify(currentFilter)); // Save the new filter object in sessionStorage
     navigate(`/shop/listing`);
@@ -202,8 +204,8 @@ function handleAddtoCart(getCurrentProductId, getTotalStock, product) {
       setCurrentSlide((prevSlide) => (prevSlide + 1) % featureImageList.length);
     }, 15000);  // every 15 sec me slide aage bhad jaegi  // 15000 ms = 15 seconds
   // If we leave it like that, even when we leave the page or the images change, that old interval will still keep running in the background.
-//This can create extra unwanted timers (multiple slides changing at once) and also waste memory.so we use clearinterval
-    return () => clearInterval(timer); // It means: when the component closes or updates, stop the old timer before starting a new one.
+  //This can create extra unwanted timers (multiple slides changing at once) and also waste memory.so we use clearinterval
+    return () => clearInterval(timer); // It means: when the component closes or updates, stop the old interval before starting a new one.
   }, [featureImageList]);
 
 //   Flow samajh (step-by-step)
@@ -260,7 +262,7 @@ function handleAddtoCart(getCurrentProductId, getTotalStock, product) {
 
 // “Jo bhi use ho raha hai effect me, dependency me daalo”
 
-  useEffect(() => { // // jaise hi home page pr aaege sare images dikhne lgege
+  useEffect(() => {  // // jaise hi home page pr aaege sare images dikhne lgege
     dispatch(getFeatureImages());
   }, [dispatch]);
 
@@ -283,120 +285,127 @@ function handleAddtoCart(getCurrentProductId, getTotalStock, product) {
 
   return (
 
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen overflow-x-hidden">
 
       <div className="relative w-full overflow-hidden">
-                <video
-                  src={img}
-                  className="w-full h-auto object-cover"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="auto"
-                />
+        <video
+          src={img}
+          className="w-full h-auto object-cover md:w-full md:h-auto"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+        />
       
-                {/* Gradient overlay (fade bottom into white) */}
-                <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-b from-transparent to-white pointer-events-none"></div>
-              </div>
+        {/* Gradient overlay (fade bottom into white) */}
+        <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-b from-transparent to-white pointer-events-none"></div>
+      </div>
                 
-          <section className="py-10 bg-white">
-                <div className="container mx-auto px-4">
-                  <h2 className="text-3xl font-bold text-center mb-8">
-                    Shop by Category </h2>
+      <section className="py-6 md:py-10 bg-white">
+        <div className="container mx-auto px-3 md:px-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 md:mb-8">
+            Shop by Category
+          </h2>
 
-                  <motion.div
-                    className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-0"
-                    variants={container}
-                    initial="hidden"
-                    whileInView="show" // animate only when in view
-                    viewport={{ once: true, amount: 0.2 }} // trigger when 20% of section is visible
+          <motion.div
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3 md:gap-0"
+            variants={container}
+            initial="hidden"
+            whileInView="show" // animate only when in view
+            viewport={{ once: true, amount: 0.2 }} // trigger when 20% of section is visible
+          >
+            {categoriesWithIcon.map((categoryItem) => (
+              <motion.div key={categoryItem.id} variants={item}>
+                <div className="flex flex-col items-center">
+                  <Card
+                    onClick={() =>
+                      handleNavigateToListingPage(categoryItem, "category")
+                    }
+                    className="cursor-pointer hover:shadow-lg transition-shadow 
+                              rounded-2xl bg-amber-50/40 flex items-center justify-center 
+                              border border-pink-200 w-[145px] h-[145px] md:w-[175px] md:h-[175px]"
                   >
-                    {categoriesWithIcon.map((categoryItem) => (
-                      <motion.div key={categoryItem.id} variants={item}>
-                        <div className="flex flex-col items-center">
-                          <Card
-                            onClick={() =>
-                              handleNavigateToListingPage(categoryItem, "category")
-                            }
-                            className="cursor-pointer hover:shadow-lg transition-shadow 
-                                      rounded-2xl bg-amber-50/40 flex items-center justify-center 
-                                      border border-pink-200 w-[175px] h-[175px]"
-                          >
-                            <CardContent className="flex items-center justify-center">
-                              {categoryItem.image ? (
-                                <img
-                                  src={categoryItem.image}
-                                  alt={categoryItem.label}
-                                  className="wfull h-full object-cover"
-                                />
-                              ) : (
-                                <categoryItem.icon className="w-20 h-20 text-slate-600" />
-                              )}
-                            </CardContent>
-                          </Card>
-                          <span className="text-gray-500 font-medium mt-3 text-lg">
-                            {categoryItem.label}
-                          </span>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </motion.div>
+                    <CardContent className="flex items-center justify-center p-2 md:p-4">
+                      {categoryItem.image ? (
+                        <img
+                          src={categoryItem.image}
+                          alt={categoryItem.label}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <categoryItem.icon className="w-20 h-20 text-slate-600" />
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  <span className="text-gray-500 font-medium mt-3 text-base md:text-lg text-center">
+                    {categoryItem.label}
+                  </span>
                 </div>
-              </section>
-
-          <section className="py-0 bg-white">
-            <div className="container mx-auto px-4">
-              <h2 className="text-3xl font-bold text-center mb-8">Shop by Hall Mark</h2>
-
-              <motion.div
-                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8"
-                variants={container}
-                initial="hidden"
-                whileInView="show"   // animate only when visible
-                viewport={{ once: true, amount: 0.2 }} // trigger when 20% visible
-              >
-                {caratsWithIcon.map((caratItem) => (  // variants = {item}  mtlb har ek item pr ye animation apply hoga
-                  <motion.div key={caratItem.id} variants={item}>
-                    <div className="flex flex-col items-center">
-                      <Card
-                        onClick={() => handleNavigateToListingPage(caratItem, "carat")}
-                        className="cursor-pointer hover:shadow-lg transition-shadow 
-                                  rounded-2xl bg-amber-50/40 flex items-center justify-center border border-pink-200
-                                  w-[250px] h-[150px]"
-                      >
-                        <CardContent className="flex items-center justify-center">
-                          {caratItem.image ? (
-                            <img
-                              src={caratItem.image}
-                              alt={caratItem.label}
-                              className="w-24 h-24 object-contain"
-                            />
-                          ) : (
-                            <caratItem.icon className="w-20 h-20 mt-3 text-slate-500" />
-                          )}
-                        </CardContent>
-                      </Card>
-                      {/* label outside card */}
-                      <span className="text-gray-500 font-medium mt-3 text-xl">
-                        {caratItem.label}
-                      </span>
-                    </div>
-                  </motion.div>
-                ))}
               </motion.div>
-            </div>
-          </section>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      <section className="py-2 md:py-0 bg-white">
+        <div className="container mx-auto px-3 md:px-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 md:mb-8">
+            Shop by Hall Mark
+          </h2>
+
+          <motion.div
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-8"
+            variants={container}
+            initial="hidden"
+            whileInView="show"   // animate only when visible
+            viewport={{ once: true, amount: 0.2 }} // trigger when 20% visible
+          >
+            {caratsWithIcon.map((caratItem) => (  // variants = {item}  mtlb har ek item pr ye animation apply hoga
+              <motion.div key={caratItem.id} variants={item}>
+                <div className="flex flex-col items-center">
+                  <Card
+                    onClick={() =>
+                      handleNavigateToListingPage(caratItem, "carat")
+                    }
+                    className="cursor-pointer hover:shadow-lg transition-shadow 
+                              rounded-2xl bg-amber-50/40 flex items-center justify-center border border-pink-200
+                              w-[150px] h-[150px] md:w-[250px] md:h-[150px]"
+                  >
+                    <CardContent className="flex items-center justify-center p-2 md:p-4">
+                      {caratItem.image ? (
+                        <img
+                          src={caratItem.image}
+                          alt={caratItem.label}
+                          className="w-24 h-24 object-contain"
+                        />
+                      ) : (
+                        <caratItem.icon className="w-20 h-20 mt-3 text-slate-500" />
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* label outside card */}
+                  <span className="text-gray-500 font-medium mt-3 text-lg md:text-xl">
+                    {caratItem.label}
+                  </span>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
 
 
-          <div>
-          {/* Other sections */}
-          <Rate />
-          {/* Footer, etc. */}
-          </div>
+      <div>
+        {/* Other sections */}
+        <Rate />
+        {/* Footer, etc. */}
+      </div>
 
 
-      <div className="relative mt-12 w-full h-[530px] overflow-hidden">
+      <div className="relative mt-8 md:mt-12 w-full aspect-[16/7] md:aspect-auto md:h-[530px] overflow-hidden">
 
         {featureImageList && featureImageList.length > 0
         ? featureImageList.map((slide, index) => {
@@ -406,28 +415,28 @@ function handleAddtoCart(getCurrentProductId, getTotalStock, product) {
               <video
                 key={index}
                 src={slide?.image}
-                className={`${
+               className={`${
                   index === currentSlide ? "opacity-100" : "opacity-0"
-                } absolute top-0 left-0 w-full h-full xs:object-contain object-cover transition-opacity duration-1000 border-4 border-white rounded-3xl shadow-lg px-2 py-2`}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="auto"
-                
+                } absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 border-4 border-white rounded-3xl shadow-lg p-1 md:px-2 md:py-2`}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
               />
             ) : (
               <img
                 key={index}
                 src={slide?.image}
                 alt={`slide-${index}`}
-                className={`${
-                  index === currentSlide ? "opacity-100" : "opacity-0"
-                } absolute top-0 left-0 w-full h-full xs:object-contain transition-opacity duration-1000 border-4 border-white rounded-3xl shadow-lg px-2 py-2`}
+         className={`${
+  index === currentSlide ? "opacity-100" : "opacity-0"
+} absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 border-4 border-white rounded-3xl shadow-lg p-1 md:px-2 md:py-2`}     
               />
             );
           })
         : null} 
+
         <Button
           variant="outline"
           size="icon"
@@ -448,10 +457,11 @@ function handleAddtoCart(getCurrentProductId, getTotalStock, product) {
 // So it wraps around to the last image.
 // That’s why it’s the Back button.
           }
-          className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/80 w-10 h-10 flex items-center justify-center rounded-full shadow-md cursor-pointer"
+          className="absolute top-1/2 left-2 md:left-4 transform -translate-y-1/2 bg-white/80 w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-full shadow-md cursor-pointer"
         >
           <ChevronLeftIcon className="w-4 h-4" />
         </Button>
+
         <Button 
           variant="outline"
           size="icon"
@@ -468,73 +478,84 @@ function handleAddtoCart(getCurrentProductId, getTotalStock, product) {
 // So it loops back to the first image.
 // That’s why it’s the Next button.
           }
-          className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/80 w-10 h-10 flex items-center justify-center rounded-full shadow-md cursor-pointer"
+          className="absolute top-1/2 right-2 md:right-4 transform -translate-y-1/2 bg-white/80 w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-full shadow-md cursor-pointer"
         >
           <ChevronRightIcon className="w-4 h-4" />
         </Button>
       </div> 
 
 
-            <section className="py-8 mt-10 bg-white">
-            <div className="w-full">
-              <div className="flex flex-nowrap gap-1 overflow-x-auto scrollbar">
-                {videoWithIcon.map((videoItem) => (
-                  <div key={videoItem.id} className="flex flex-col items-center flex-shrink-0">
-                    <Card
-                      onClick={() => handleNavigateToListingPage(videoItem, "carat")}
-                      className="cursor-pointer hover:shadow-lg transition-shadow 
-                                rounded-lg bg-amber-50/40 flex items-center justify-center 
-                                border border-pink-200 w-[250px] h-[400px] overflow-hidden"
-                    >
-                      {/* ✅ CardContent must stretch full */}
-                      <CardContent className="w-full h-full p-0">
-                        {videoItem.video ? (
-                          <video
-                            src={videoItem.video}
-                            autoPlay
-                            loop
-                            muted
-                            playsInline
-                            className="w-full h-full object-cover"
-                          />
-                        ) : videoItem.image ? (
-                          <img
-                            src={videoItem.image}
-                            alt={videoItem.label}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <span className="text-slate-500">No media</span>
-                        )}
-                      </CardContent>
-                    </Card>
-                    <span className="text-gray-500 font-medium mt-3 text-xl">
-                      {videoItem.label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
+    <section className="py-2 md:py-8 mt-4 md:mt-10 bg-white">
+  <div className="w-full">
+<div className="flex flex-nowrap gap-3 md:gap-1 overflow-x-auto scrollbar px-3 md:px-0 pb-0 md:pb-4">      {videoWithIcon.map((videoItem) => (
+        <div
+          key={videoItem.id}
+          className="flex flex-col items-center flex-shrink-0"
+        >
+          <Card
+            onClick={() =>
+              handleNavigateToListingPage(videoItem, "carat")
+            }
+            className="cursor-pointer hover:shadow-lg transition-shadow 
+                      rounded-lg bg-amber-50/40 flex items-center justify-center 
+                      border border-pink-200 
+                      w-[43vw] h-[280px] 
+                      md:w-[250px] md:h-[400px] 
+                      overflow-hidden"
+          >
+            {/* ✅ CardContent must stretch full */}
+            <CardContent className="w-full h-full p-0">
+              {videoItem.video ? (
+                <video
+                  src={videoItem.video}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+              ) : videoItem.image ? (
+                <img
+                  src={videoItem.image}
+                  alt={videoItem.label}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-slate-500">No media</span>
+              )}
+            </CardContent>
+          </Card>
+
+          <span className="text-gray-500 font-medium mt-3 text-lg md:text-xl">
+            {videoItem.label}
+          </span>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
 
 
-       <div className="relative h-[170px] mt-4 w-full overflow-hidden">
-          <img 
-          src={of} 
-          className="h-full w-full mt-8 object-center"
-          />
-      </div>
+   <div className="relative w-full h-auto mt-4 md:h-[170px] md:mt-4 overflow-hidden">
+  <img
+    src={of}
+    className="w-full h-auto mt-0 md:h-full md:mt-8 object-center"
+    alt="Gold Mine"
+  />
+</div>
 
 
-              <section className="py-10 bg-white">
-          <h2 className="text-2xl font-bold text-center mb-6">Editorial</h2>
+      <section className="py-8 md:py-10 bg-white">
+        <h2 className="text-2xl md:text-2xl font-bold text-center mb-6">
+          Editorial
+        </h2>
 
-          <div
-            className="w-[100%] mx-auto grid grid-cols-6 gap-5">
+        <div
+          className="w-full mx-auto grid grid-cols-2 md:grid-cols-6 gap-3 md:gap-5 px-4 md:px-0">
 
-            {/* Big Item 1 */}
-            <div className="col-span-3 row-span-2 ml-5 rounded-xl overflow-hidden">
-            <div className="relative w-full pb-[84%] rounded-xl overflow-hidden"> 
+          {/* Big Item 1 */}
+          <div className="col-span-2 md:col-span-3 md:row-span-2 md:ml-5 rounded-xl overflow-hidden">
+            <div className="relative w-full aspect-[4/3] md:aspect-auto md:pb-[84%] rounded-xl overflow-hidden"> 
               {/* 56.25% = 16:9 aspect ratio, adjust if your video has different ratio */}
               <video 
                 src={blue} 
@@ -543,72 +564,85 @@ function handleAddtoCart(getCurrentProductId, getTotalStock, product) {
                 playsInline
                 controls
                 muted
-                className="absolute top-0 left-0 w-full h-full object-fill rounded-xl"
+                className="absolute top-0 left-0 w-full h-full object-cover md:object-fill rounded-xl"
               />
             </div>
           </div>
               
-              <div
-              className=" col-span-3 grid grid-cols-3 gap-5"  >
+          <div
+            className="col-span-2 md:col-span-3 grid grid-cols-3 gap-3 md:gap-5"  >
                         
-            <div className="rounded-xl h-[300px] ">
+            <div className="rounded-xl h-[220px] md:h-[300px] ">
               <img src={p1} 
               className="w-full h-full object-cover rounded-xl transition-transform duration-1000 hover:scale-110"  />
             </div>
-            <div className="rounded-xl">
+
+            <div className="rounded-xl h-[220px] md:h-auto">
               <img src={p7} 
               className="w-full h-full object-cover rounded-xl transition-transform duration-1000 hover:scale-110"  />
             </div>
-            <div className=" rounded-xl mr-3">
+
+            <div className="rounded-xl mr-0 md:mr-3 h-[220px] md:h-auto">
               <img src={p3} 
               className="w-full h-full object-cover rounded-xl transition-transform duration-1000 hover:scale-110"  />
             </div>
-          <div className=" rounded-xl h-[300px]">
+
+            <div className="rounded-xl h-[220px] md:h-[300px]">
               <img src={p4} 
               className="w-full h-full object-cover rounded-xl transition-transform duration-1000 hover:scale-110"  />
             </div>
-          <div className=" rounded-xl">
+
+            <div className="rounded-xl h-[220px] md:h-auto">
               <img src={p5} 
               className="w-full h-full object-cover rounded-xl transition-transform duration-1000 hover:scale-110"  />
             </div>
-            <div className=" rounded-xl mr-3">
+
+            <div className="rounded-xl mr-0 md:mr-3 h-[220px] md:h-auto">
               <img src={p6} 
               className="w-full h-full object-cover rounded-xl transition-transform duration-1000 hover:scale-110"  />
             </div>
-              </div>
+
           </div>
-        </section>
+        </div>
+      </section>
 
-        <RecommendedProducts
-  handleGetProductDetails={handleGetProductDetails}
-  handleAddtoCart={handleAddtoCart}
-/>
 
-       <section className="py-1 bg-white">
+      <RecommendedProducts
+        handleGetProductDetails={handleGetProductDetails}
+        handleAddtoCart={handleAddtoCart}
+      />
+
+
+      <section className="py-1 bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mt-6 mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mt-6 mb-6 md:mb-8">
             Feature Products
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {productList && productList.length > 0
+
+<div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">            {productList && productList.length > 0
               ? productList.map((productItem) => (
                   <ShoppingProductTile
-                    handleGetProductDetails={handleGetProductDetails}
-                    product={productItem}
-                    handleAddtoCart={handleAddtoCart}
-                  />
+  key={productItem._id || productItem.id}
+  handleGetProductDetails={handleGetProductDetails}
+  product={productItem}
+  handleAddtoCart={handleAddtoCart}
+  mobileCompact={true}
+/>
                 ))
               : null}
           </div>
         </div>
       </section>
 
-        <div className="relative h-[460px] w-full overflow-hidden">
-          <img 
-          src={imgg} 
-          className="h-full w-full mt-8 object-center"
-          />
-      </div>
+
+      <div className="relative w-full h-auto mt-4 md:h-[460px] md:mt-0 overflow-hidden">
+  <img
+    src={imgg}
+    className="w-full h-auto md:h-full md:w-full md:mt-8 object-contain md:object-center"
+    alt="Kridha Store"
+  />
+</div>
+
 
       <ProductDetailsDialog
         open={openDetailsDialog}
@@ -617,11 +651,12 @@ function handleAddtoCart(getCurrentProductId, getTotalStock, product) {
       />
           
 
-          <AIJewelryAssistant />
+      <AIJewelryAssistant />
 
-          <div>
-          <Footer />
-          </div>
+      <div>
+        <Footer />
+      </div>
+
     </div>
   );
 }

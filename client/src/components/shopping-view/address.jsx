@@ -242,37 +242,39 @@ useEffect(() => {  // useEffect is a React hook that runs a function after the c
   }, [dispatch]);  // Ye dependency array hai. yha disptach ka mtlb h kuch bhi dispatch ho to useEffect ko run kr do.
 
   return (
-    <Card>
-      <div className="mb-5 p-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {addressList && addressList.length > 0
-          ? addressList.map((singleAddressItem) => (
-              <AddressCard
-                selectedId={selectedId}
-                handleDeleteAddress={handleDeleteAddress}
-                addressInfo={singleAddressItem}
-                handleEditAddress={handleEditAddress}
-                setCurrentSelectedAddress={setCurrentSelectedAddress}
-              />
-            ))
-          : null}
-      </div>
-      <CardHeader>
-        <CardTitle>
-          {currentEditedId !== null ? "Edit Address" : "Add New Address"}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3 ">
-        <CommonForm 
-          formControls={addressFormControls}
-          formData={formData}
-          setFormData={setFormData}
-          buttonText={currentEditedId !== null ? "Edit" : "Add"}
-          onSubmit={handleManageAddress}
-          isBtnDisabled={!isFormValid()}
-        />
-      </CardContent>
-    </Card>
-  );
+  <Card>
+    <div className="mb-1 md:mb-5 p-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+      {addressList && addressList.length > 0
+        ? addressList.map((singleAddressItem) => (
+            <AddressCard
+              selectedId={selectedId}
+              handleDeleteAddress={handleDeleteAddress}
+              addressInfo={singleAddressItem}
+              handleEditAddress={handleEditAddress}
+              setCurrentSelectedAddress={setCurrentSelectedAddress}
+            />
+          ))
+        : null}
+    </div>
+
+    <CardHeader className="pt-2 md:pt-6">
+      <CardTitle className="text-2xl font-semibold">
+        {currentEditedId !== null ? "Edit Address" : "Add New Address"}
+      </CardTitle>
+    </CardHeader>
+
+    <CardContent className="space-y-3">
+      <CommonForm
+        formControls={addressFormControls}
+        formData={formData}
+        setFormData={setFormData}
+        buttonText={currentEditedId !== null ? "Edit" : "Add"}
+        onSubmit={handleManageAddress}
+        isBtnDisabled={!isFormValid()}
+      />
+    </CardContent>
+  </Card>
+);
 }
 
 export default Address;

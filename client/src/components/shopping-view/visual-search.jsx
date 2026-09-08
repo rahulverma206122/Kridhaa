@@ -442,10 +442,10 @@ function VisualSearch() {
                 full-size tiles */}
             {products.map((product) => (
               <div
-                key={product._id}
-                className="flex-none w-[calc((100%-120px)/5)] snap-start
-                max-lg:w-[calc((100%-80px)/4)] max-md:w-[calc((100%-24px)/2)] max-sm:w-full"
-              >
+  key={product._id}
+  className="flex-none w-[calc((100%-120px)/5)] snap-start
+  max-lg:w-[calc((100%-80px)/4)] max-md:w-[calc((100%-24px)/2)]"
+>
                 <ShoppingProductTile
                   product={product}
                   handleGetProductDetails={handleGetProductDetails}

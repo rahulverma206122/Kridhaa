@@ -26,7 +26,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "../ui/avatar";
-import { logoutUser, resetTokenAndCredentials } from "@/store/auth-slice";
+import { resetTokenAndCredentials } from "@/store/auth-slice";
 import UserCartWrapper from "./cart-wrapper";
 import { useEffect, useState } from "react";
 import {
@@ -36,13 +36,14 @@ import {
 import { Label } from "../ui/label";
 import logo from "../../assets/kridha.png";
 
-function MenuItems() {
+function MenuItems({ closeMobileSheet }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   function handleNavigate(getCurrentMenuItem) {
     sessionStorage.removeItem("filters");   // 1. Clear old filters
+
     const currentFilter =   // 2. Prepare a new filter (only if menu item is not "home/products/search")
       getCurrentMenuItem.id !== "home" &&
       getCurrentMenuItem.id !== "products" &&
@@ -52,10 +53,20 @@ function MenuItems() {
           }
         : null;
 
-    sessionStorage.setItem("filters", JSON.stringify(currentFilter));  // se notes for home.jsx
+    sessionStorage.setItem(
+      "filters",
+      JSON.stringify(currentFilter)
+    );  // se notes for home.jsx
+
     {/* If user is already on listing page and you have a filter → update query string (so page updates without redirect)
         Example: ?category=men.
         Else → just navigate to the menu’s path (navigate(getCurrentMenuItem.path)). */}
+
+    // 🔥 Mobile menu close before navigation
+    if (closeMobileSheet) {
+      closeMobileSheet();
+    }
+
     location.pathname.includes("listing") && currentFilter !== null
       ? setSearchParams(
           new URLSearchParams(`?category=${getCurrentMenuItem.id}`)
@@ -72,7 +83,7 @@ function MenuItems() {
         <div key={menuItem.id} className="flex items-center gap-2">
           <Label
             onClick={() => handleNavigate(menuItem)}
-            className=" font-medium text-base cursor-pointer transition-transform duration-200 hover:scale-125 hover:text-red-400"
+            className="font-medium text-base cursor-pointer transition-transform duration-200 hover:scale-125 hover:text-red-400"
           >
             {menuItem.label}
           </Label>
@@ -82,7 +93,14 @@ function MenuItems() {
           {menuItem.id === "search" && (
             <button
               type="button"
-              onClick={() => navigate("/shop/visual-search")}
+              onClick={() => {
+                // 🔥 Close mobile menu before opening visual search
+                if (closeMobileSheet) {
+                  closeMobileSheet();
+                }
+
+                navigate("/shop/visual-search");
+              }}
               className="w-8 h-8 rounded-full border flex items-center justify-center
               hover:bg-gray-100 hover:scale-125 transition-all ml-3"
             >
@@ -96,18 +114,68 @@ function MenuItems() {
   );
 }
 
-function HeaderRightContent() {
-  const { user, isAuthenticated } = useSelector((state) => state.auth); // useSelector is a React-Redux hook that lets you read data from the Redux store.(state) => state.auth → We are accessing the auth slice of the Redux state.{ user } → We extract the user property from that slice.
+function HeaderRightContent({
+  closeMobileSheet,
+  openCartSheet,
+  setOpenCartSheet,
+}) {
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.shopCart);
-  const [openCartSheet, setOpenCartSheet] = useState(false);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   function handleLogout() {
-    //dispatch(logoutUser());  // logoutuser hmne store me auth me bna rkha h 
+    // 🔥 Close mobile menu first
+    if (closeMobileSheet) {
+      closeMobileSheet();
+    }
+
     dispatch(resetTokenAndCredentials());
     sessionStorage.clear();
     navigate("/shop/home");
+  }
+
+  // function handleCartClick() {
+  //   // 🔥 IMPORTANT:
+  //   // Do NOT close mobile menu here.
+  //   //
+  //   // Earlier we were doing:
+  //   // closeMobileSheet();
+  //   // setOpenCartSheet(true);
+  //   //
+  //   // That caused HeaderRightContent to unmount and
+  //   // the cart sheet state to reset immediately.
+  //   setOpenCartSheet(true);
+  // }
+
+
+  function handleCartClick() {
+  // 🔥 First close the mobile header sheet
+  if (closeMobileSheet) {
+    closeMobileSheet();
+  }
+
+  // 🔥 Then open the cart sheet
+  setOpenCartSheet(true);
+}
+
+  function handleAccountClick() {
+    // 🔥 Close mobile menu before navigating to account
+    if (closeMobileSheet) {
+      closeMobileSheet();
+    }
+
+    navigate("/shop/account");
+  }
+
+  function handleLoginClick() {
+    // 🔥 Close mobile menu before navigating to login
+    if (closeMobileSheet) {
+      closeMobileSheet();
+    }
+
+    navigate("/auth/login");
   }
 
   useEffect(() => {
@@ -124,52 +192,52 @@ function HeaderRightContent() {
     });
   }, [dispatch, isAuthenticated, user?.id]);
 
-  
   return (
-
     <div className="flex lg:items-center lg:flex-row flex-col gap-7">
 
-      <Sheet open={openCartSheet} onOpenChange={() => setOpenCartSheet(false)}>
-        <Button
-          onClick={() => setOpenCartSheet(true)}
-          variant="outline" // variant="outline" gives the button an outlined style, making it visually distinct and suitable for secondary actions.
-          size="icon"
-          className="relative transition-transform duration-100 hover:scale-110"
-        >
-          <ShoppingCart className="w-6 h-6" />
-          <span className="absolute top-[-5px] right-[2px] font-bold text-sm">
-            {cartItems?.items?.length || 0}
-          </span>
-          <span className="sr-only">User cart</span> {/*On the screen, "User cart" won’t be visible. Screen readers (for blind/low-vision users) will still read “User cart”. */}
-        </Button>
+      {/* 
+        🔥 Cart Sheet is controlled by ShoppingHeader.
+        This is important for mobile because the mobile menu
+        can close without destroying the cart state.
+      */}
+      <Button
+        onClick={handleCartClick}
+        variant="outline"
+        size="icon"
+        className="relative transition-transform duration-100 hover:scale-110"
+      >
+        <ShoppingCart className="w-6 h-6" />
 
-        <UserCartWrapper //  come from cartwrapper.jsx
-          setOpenCartSheet={setOpenCartSheet}
-          cartItems={
-            cartItems && cartItems.items && cartItems.items.length > 0
-              ? cartItems.items
-              : []
-          }
-        />
-      </Sheet>
+        <span className="absolute top-[-5px] right-[2px] font-bold text-sm">
+          {cartItems?.items?.length || 0}
+        </span>
+
+        <span className="sr-only">
+          User cart
+        </span>
+      </Button>
 
       {/* 🔥 Logged-in user ko existing black avatar dikhega
           🔥 Guest user ko User/Login icon dikhega */}
+
       {isAuthenticated ? (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Avatar className="bg-black transition-transform duration-100 hover:scale-110">
               <AvatarFallback className="bg-black text-white font-extrabold">
-                {user?.userName[0].toUpperCase()}
+                {user?.userName?.[0]?.toUpperCase()}
               </AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
 
           <DropdownMenuContent side="right" className="w-56">
-            <DropdownMenuLabel>Logged in as {user?.userName}</DropdownMenuLabel>
+            <DropdownMenuLabel>
+              Logged in as {user?.userName}
+            </DropdownMenuLabel>
+
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem onClick={() => navigate("/shop/account")}>
+            <DropdownMenuItem onClick={handleAccountClick}>
               <UserCog className="mr-2 h-4 w-4" />
               Account
             </DropdownMenuItem>
@@ -186,21 +254,19 @@ function HeaderRightContent() {
         <Button
           variant="outline"
           size="icon"
-          onClick={() => navigate("/auth/login")}
+          onClick={handleLoginClick}
           className="rounded-full transition-transform duration-100 hover:scale-110"
         >
           <UserRound className="w-6 h-6" />
-          <span className="sr-only">Login</span>
+
+          <span className="sr-only">
+            Login
+          </span>
         </Button>
       )}
     </div>
   );
 }
-
-
-
-
-
 
 function ShoppingHeader() {
   // const { isAuthenticated } = useSelector((state) => state.auth);
@@ -216,49 +282,140 @@ function ShoppingHeader() {
   //   return () => window.removeEventListener("scroll", handleScroll);
   // }, []);
 
-  // <header  replace this with header after return 
+  // <header  replace this with header after return
   //     className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
   //       isScrolled
   //         ? "bg-white/40 backdrop-blur-md shadow-md"
   //         : "bg-white shadow-none"
   //     }`}
-  //   > 
+  //   >
+
+  // 🔥 Mobile menu state
+  const [openMobileSheet, setOpenMobileSheet] = useState(false);
+
+  // 🔥 IMPORTANT:
+  // Cart state is kept HERE, outside the mobile Sheet.
+  // So closing the mobile menu will NOT close the cart.
+  const [openCartSheet, setOpenCartSheet] = useState(false);
+
+  const { cartItems } = useSelector((state) => state.shopCart);
 
   return (
+    <>
+      <header className="fixed top-0 left-0 w-full z-50 border-b bg-background">
 
-    <header className= "fixed top-0 left-0 w-full z-50 border-b bg-background">
-    
-      <div className="flex h-16 items-center justify-between px-4 md:px-6">
-        <Link to="/shop/home" className="flex items-center gap-2">
-          <img
-           className="h-[62px] w-[250px] rounded-full transition-transform duration-100 hover:scale-75"
-           src={logo} />
-          {/* <span className="font-bold  text-xl">Kridha Jewellers</span> */}
-        </Link>
+        <div className="flex h-16 items-center justify-between px-4 md:px-6">
 
-        <Sheet> {/* this sheet works for mobile smaller devices */}
-          <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="lg:hidden">
-              <Menu className="h-6 w-6" /> {/* hemburger menu */}
-              <span className="sr-only">Toggle header menu</span> 
-            </Button>
-          </SheetTrigger>
+          <Link to="/shop/home" className="flex items-center gap-2">
+            <img
+              className="h-[62px] w-[250px] rounded-full transition-transform duration-100 hover:scale-75"
+              src={logo}
+            />
 
-          <SheetContent side="left" className="w-full max-w-xs">
+            {/* <span className="font-bold  text-xl">Kridha Jewellers</span> */}
+          </Link>
+
+
+          {/* 🔥 Mobile menu Sheet */}
+          <Sheet
+            open={openMobileSheet}
+            onOpenChange={setOpenMobileSheet}
+          >
+
+            <SheetTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="lg:hidden"
+              >
+                <Menu className="h-6 w-6" />
+                {/* hemburger menu */}
+
+                <span className="sr-only">
+                  Toggle header menu
+                </span>
+              </Button>
+            </SheetTrigger>
+
+
+            {/* Mobile menu width reduced without affecting desktop header */}
+            <SheetContent
+              side="left"
+              className="w-[50vw] max-w-sm"
+            >
+
+              <MenuItems
+                closeMobileSheet={() =>
+                  setOpenMobileSheet(false)
+                }
+              />
+
+              <HeaderRightContent
+                closeMobileSheet={() =>
+                  setOpenMobileSheet(false)
+                }
+                openCartSheet={openCartSheet}
+                setOpenCartSheet={setOpenCartSheet}
+              />
+
+            </SheetContent>
+
+          </Sheet>
+
+
+          <div className="hidden lg:block">
+            {/* hidden → hides the element (display: none) on all screen sizes by default. */}
+
             <MenuItems />
-            <HeaderRightContent />
-          </SheetContent>
-        </Sheet>
+          </div>
 
-        <div className="hidden lg:block"> {/* hidden → hides the element (display: none) on all screen sizes by default. lg:block → when the screen size is large (≥1024px) or bigger, the element will be displayed as block. */}
-          <MenuItems />
+
+          <div className="hidden lg:block">
+
+            <HeaderRightContent
+              openCartSheet={openCartSheet}
+              setOpenCartSheet={setOpenCartSheet}
+            />
+
+          </div>
+
         </div>
 
-        <div className="hidden lg:block">
-          <HeaderRightContent />
-        </div>
-      </div>
-    </header>
+      </header>
+
+
+      {/* 
+        🔥 CART SHEET IS NOW OUTSIDE THE MOBILE MENU SHEET.
+
+        This means:
+        Mobile Menu
+             ↓
+        Click Cart
+             ↓
+        Cart state stays alive
+             ↓
+        Cart opens from right
+      */}
+
+      <Sheet
+        open={openCartSheet}
+        onOpenChange={setOpenCartSheet}
+      >
+
+        <UserCartWrapper
+          setOpenCartSheet={setOpenCartSheet}
+          cartItems={
+            cartItems &&
+            cartItems.items &&
+            cartItems.items.length > 0
+              ? cartItems.items
+              : []
+          }
+        />
+
+      </Sheet>
+
+    </>
   );
 }
 

@@ -8,7 +8,8 @@ function ShoppingProductTile({
   product,//  These are called function parameters (props destructuring). 
   handleGetProductDetails,// You’re saying: "From all the props passed, I only want these three: product, handleGetProductDetails, handleAddtoCart." 
   handleAddtoCart, 
-  compact = false, 
+  compact = false,
+  mobileCompact = false,
 }) { 
   return ( 
     <Card className="w-full max-w-sm mx-auto"> 
@@ -21,7 +22,6 @@ function ShoppingProductTile({
 </div> 
  
 👉 Yahan: 
- 
 Parent = relative 
 Child = absolute 
  
@@ -34,41 +34,41 @@ Child = absolute
 </div> 
  
 👉 Yahan: 
- 
 Parent = relative 
 Child = absolute 
  
 💡 Result: 
-👉 ❤️ icon parent ke top-right corner me aayega 
- 
-🤯 Agar relative na ho: 
-<div> 
-  <div className="absolute top-0 right-0">❤️</div> 
-</div> 
- 
 👉 ❤️ chala jayega: 
 ➡️ poore page ke top-right 😵 */} 
            
           <img 
             src={product?.image} 
             alt={product?.title} 
-            className={`w-full object-cover ${ 
-              compact ? "h-[190px]" : "h-[300px]" 
+            className={`w-full object-cover ${
+              compact 
+                ? "h-[115px] sm:h-[140px] md:h-[190px]" 
+                : mobileCompact
+                  ? "h-[170px] sm:h-[200px] md:h-[300px]"
+                  : "h-[300px]" 
             }`} 
           /> 
+
           {product?.totalStock === 0 ? ( 
-            <Badge className="absolute top-2 left-2 bg-red-400 hover:bg-red-600"> 
-              Out Of Stock 
-            </Badge> 
+            <Badge
+  className="hidden md:block absolute top-2 left-2 bg-red-400 hover:bg-red-600 text-xs md:text-sm"
+>
+  Out Of Stock
+</Badge>
           ) : product?.totalStock < 10 ? ( 
-            <Badge className="absolute top-2 left-2 bg-red-400 hover:bg-red-600"> 
+            <Badge className="hidden md:block absolute top-2 left-2 bg-red-400 hover:bg-red-600 text-xs md:text-sm"> 
               {`Only ${product?.totalStock} items left`} 
             </Badge> 
           ) : product?.salePrice > 0 ? ( 
-            <Badge className="absolute top-2 left-2 bg-red-400 hover:bg-red-600"> 
+            <Badge className="absolute top-2 left-2 bg-red-400 hover:bg-red-600 text-xs md:text-sm"> 
               Sale 
             </Badge> 
-          ) : null} 
+          ) : null}
+
         </div> 
  
 {/* Start 
@@ -88,41 +88,63 @@ SalePrice > 0 ?
 Show Nothing */} 
  
  
-        <CardContent className="p-4"> 
+        <CardContent
+          className={`${
+            compact
+              ? "p-2 md:p-4"
+              : mobileCompact
+                ? "p-2 md:p-4"
+                : "p-4"
+          }`}
+        > 
           <h2 
-            className={`font-bold mb-2 ${ 
+            className={`font-bold mb-2 ${
               compact 
-                ? "text-base line-clamp-2" 
-                : "text-xl" 
+                ? "text-sm sm:text-base md:text-base line-clamp-2" 
+                : mobileCompact
+                  ? "text-sm sm:text-base md:text-xl line-clamp-2"
+                  : "text-xl" 
             }`} 
           > 
             {product?.title} 
           </h2> 
  
-          <div className="flex justify-between items-center mb-2"> 
+          <div className="flex justify-between items-center mb-2 gap-1"> 
             <span 
-              className={`text-muted-foreground ${ 
-                compact ? "text-sm" : "text-[16px]" 
+              className={`text-muted-foreground truncate ${
+                compact 
+                  ? "text-xs sm:text-sm md:text-sm" 
+                  : mobileCompact
+                    ? "text-xs sm:text-sm md:text-[16px]"
+                    : "text-[16px]" 
               }`} 
             > 
               {categoryOptionsMap[product?.category]} 
             </span> 
  
             <span 
-              className={`text-muted-foreground ${ 
-                compact ? "text-sm" : "text-[16px]" 
+              className={`text-muted-foreground whitespace-nowrap ${
+                compact 
+                  ? "text-xs sm:text-sm md:text-sm" 
+                  : mobileCompact
+                    ? "text-xs sm:text-sm md:text-[16px]"
+                    : "text-[16px]" 
               }`} 
             > 
               {caratOptionsMap[product?.carat]} 
             </span> 
           </div> 
  
-          <div className="flex justify-between items-center mb-2"> 
+          <div className="flex justify-between items-center mb-1 md:mb-2 gap-1"> 
             <span 
-              className={`${ 
+              className={`${
                 product?.salePrice > 0 ? "line-through" : "" 
-              } font-semibold text-primary ${ 
-                compact ? "text-base" : "text-lg" 
+              } font-semibold text-primary ${
+                compact 
+                  ? "text-sm sm:text-base md:text-base" 
+                  : mobileCompact
+                    ? "text-sm sm:text-base md:text-lg"
+                    : "text-lg" 
               }`} 
             > 
               ₹{product?.price} 
@@ -130,8 +152,12 @@ Show Nothing */}
  
             {product?.salePrice > 0 ? ( 
               <span 
-                className={`font-semibold text-primary ${ 
-                  compact ? "text-base" : "text-lg" 
+                className={`font-semibold text-primary ${
+                  compact 
+                    ? "text-sm sm:text-base md:text-base" 
+                    : mobileCompact
+                      ? "text-sm sm:text-base md:text-lg"
+                      : "text-lg" 
                 }`} 
               > 
                 ₹{product?.salePrice} 
@@ -141,7 +167,13 @@ Show Nothing */}
         </CardContent> 
       </div> 
  
-      <CardFooter> 
+      <CardFooter
+        className={`${
+          compact || mobileCompact
+            ? "p-2 pt-0 md:p-4"
+            : ""
+        }`}
+      > 
         {product?.totalStock === 0 ? ( 
           <Button className="w-full opacity-60 cursor-not-allowed"> 
             Out Of Stock 
@@ -155,7 +187,13 @@ Show Nothing */}
                 product // 🔥 Complete product data guest cart ke liye pass kar rahe hain
               ) 
             } //handleAddtoCart kahin na kahin defined hoga hi, warna code run hi nahi karega. 
-            className="bg-cyan-800 hover:bg-cyan-700 text-white font-semibold text-base px-6 py-2 rounded-lg shadow-md transition-colors w-full" 
+            className={`bg-cyan-800 hover:bg-cyan-700 text-white font-semibold rounded-lg shadow-md transition-colors w-full ${
+              compact
+                ? "text-xs sm:text-sm md:text-base px-2 py-1.5 md:px-6 md:py-2"
+                : mobileCompact
+                  ? "text-xs sm:text-sm md:text-base px-2 py-1.5 md:px-6 md:py-2"
+                  : "text-base px-6 py-2"
+            }`} 
           > 
             Add to cart 
           </Button> 
