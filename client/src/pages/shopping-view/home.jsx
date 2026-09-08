@@ -115,10 +115,10 @@ function ShoppingHome() {
   const { user } = useSelector((state) => state.auth);
 
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // useNavigate() hook React Router v6 ka part hai, jo ki functional components me navigation handle karne ke liye use hota hai. Ye hook ek function return karta hai jise navigate() ke naam se use karte hain, jiska use karke aap programmatically kisi bhi route par navigation handle kar sakte hain. Ye hook ek function return karta hai jise navigate() ke naam se use karte hain, jiska use karke aap programmatically kisi bhi route par le ja sakte hain, bina kisi link ke click ke. Ye dynamic navigation ke liye bahut useful hota hai, especially jab aapko user actions ke basis par different pages par le jana ho.
-  // Jaise ki jab user kisi category ya product par click kare, to wo navigate() function specific route par le jaata hai, bina kisi full page reload ke. 
+  const navigate = useNavigate(); // useNavigate() hook React Router v6 ka part hai, jo ki functional components me navigation handle karne ke liye use hota hai. Ye hook ek function return karta hai jise navigate() ke naam se use karte hain, bina kisi full page reload ke. Ye dynamic navigation ke liye bahut useful hota hai, especially jab aap user actions ke basis par different routes par le jana chahte ho.
+  // Jaise ki jab koi category ya product par click kare, to wo navigate() function specific route par le jaata hai.
 
-  const { toast } = useToast(); // useToast() custom hook hai jo ki toast notifications ko handle karta hai. Ye hook ek object return karta hai jisme toast function hota hai, jiska use karke aap apne application me toast messages show kar sakte ho. Jaise ki jab user product cart me add kare, to toast() function se success message show kar sakte ho, jisse user ko feedback milega.
+  const { toast } = useToast(); // useToast() custom hook hai jo ki toast notifications ko handle karta hai. Ye hook ek object return karta hai jisme toast function hota hai, jiska use karke hum toast messages show karte hain.
 
   function handleNavigateToListingPage(getCurrentItem, section) {
     sessionStorage.removeItem("filters");  // first we clear the session storage mtlb jo bhi filter lga ho phle use clear krdo
@@ -200,6 +200,18 @@ function handleAddtoCart(getCurrentProductId, getTotalStock, product) {
 // “Jab bhi productDetails change hoga → ye function run hoga”
 
   useEffect(() => {
+    // 🔥 If there are no feature images/videos, don't start the timer.
+    // This prevents invalid calculations with featureImageList.length = 0.
+    if (!featureImageList || featureImageList.length === 0) {
+      setCurrentSlide(0);
+      return;
+    }
+
+    // 🔥 Keep currentSlide inside the valid range if feature images change/delete.
+    setCurrentSlide((prevSlide) =>
+      Math.min(prevSlide, featureImageList.length - 1)
+    );
+
     const timer = setInterval(() => {
       setCurrentSlide((prevSlide) => (prevSlide + 1) % featureImageList.length);
     }, 15000);  // every 15 sec me slide aage bhad jaegi  // 15000 ms = 15 seconds
@@ -225,7 +237,6 @@ function handleAddtoCart(getCurrentProductId, getTotalStock, product) {
 // 👉 Problem:
 
 // Multiple timers run honge 😵
-// Slide fast fast change hogi
 // Memory leak hoga
 
   useEffect(() => {  // jaise hi home page pr aaege sare product dikhne lgege
@@ -414,9 +425,9 @@ function handleAddtoCart(getCurrentProductId, getTotalStock, product) {
             return isVideo ? (
               <video
                 key={index}
-               // src={slide?.image}
-               src={slide?.image?.replace(/^http:\/\//i, "https://")}
-               className={`${
+                // src={slide?.image}
+                src={slide?.image?.replace(/^http:\/\//i, "https://")}
+                className={`${
                   index === currentSlide ? "opacity-100" : "opacity-0"
                 } absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 border-4 border-white rounded-3xl shadow-lg p-1 md:px-2 md:py-2`}
                 autoPlay
@@ -428,11 +439,11 @@ function handleAddtoCart(getCurrentProductId, getTotalStock, product) {
             ) : (
               <img
                 key={index}
-                src={slide?.image}
+                src={slide?.image?.replace(/^http:\/\//i, "https://")}
                 alt={`slide-${index}`}
-         className={`${
-  index === currentSlide ? "opacity-100" : "opacity-0"
-} absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 border-4 border-white rounded-3xl shadow-lg p-1 md:px-2 md:py-2`}     
+                className={`${
+                  index === currentSlide ? "opacity-100" : "opacity-0"
+                } absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 border-4 border-white rounded-3xl shadow-lg p-1 md:px-2 md:py-2`}     
               />
             );
           })
@@ -456,7 +467,7 @@ function handleAddtoCart(getCurrentProductId, getTotalStock, product) {
 // prevSlide = 0
 // (0 - 1 + 5) % 5 = (4) % 5 = 4
 // So it wraps around to the last image.
-// That’s why it’s the Back button.
+// That’s why it’s Back button.
           }
           className="absolute top-1/2 left-2 md:left-4 transform -translate-y-1/2 bg-white/80 w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-full shadow-md cursor-pointer"
         >
@@ -477,7 +488,7 @@ function handleAddtoCart(getCurrentProductId, getTotalStock, product) {
 // prevSlide = 4, featureImageList.length = 5
 // (4 + 1) % 5 = 5 % 5 = 0
 // So it loops back to the first image.
-// That’s why it’s the Next button.
+// That’s why it’s Next button.
           }
           className="absolute top-1/2 right-2 md:right-4 transform -translate-y-1/2 bg-white/80 w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-full shadow-md cursor-pointer"
         >
