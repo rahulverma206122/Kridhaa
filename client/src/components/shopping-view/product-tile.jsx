@@ -42,7 +42,8 @@ Child = absolute
 ➡️ poore page ke top-right 😵 */} 
            
           <img 
-            src={product?.image} 
+            //src={product?.image}
+            src={product?.image?.replace(/^http:\/\//i, "https://")} 
             alt={product?.title} 
             className={`w-full object-cover ${
               compact 
