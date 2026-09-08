@@ -83,7 +83,8 @@ function ProductImageUpload({
 
     if (response?.data?.success) {
       //setUploadedImageUrl(response.data.imageUrl); ye line phle add thi jiski wjh se hi image show nhi ho rhi thi card me 
-      setUploadedImageUrl(response.data.result.url);
+     // setUploadedImageUrl(response.data.result.url);
+     setUploadedImageUrl(response.data.result.secure_url);
      // const url = response.data.result?.secure_url || response.data.result?.url || "";
       //setUploadedImageUrl(url); //Cloudinary URL of the uploaded image.
       
