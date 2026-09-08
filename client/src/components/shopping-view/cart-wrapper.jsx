@@ -22,7 +22,7 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
 
   return (
     <SheetContent
-      className="sm:max-w-md h-screen flex flex-col pb-6"
+      className="sm:max-w-md h-screen flex flex-col pb-8"
     >
       <SheetHeader className="flex-shrink-0">
         <SheetTitle>Your Cart</SheetTitle>
@@ -43,7 +43,7 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
       </div>
 
       {/* 🔥 Total and Checkout stay fixed at the bottom */}
-      <div className="flex-shrink-0 bg-background pt-3 pb-6 border-t space-y-3">
+      <div className="flex-shrink-0 bg-background pt-3 pb-8 border-t space-y-3">
         <div className="flex justify-between">
           <span className="font-bold">Total</span>
 
