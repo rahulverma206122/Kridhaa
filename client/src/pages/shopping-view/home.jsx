@@ -414,7 +414,8 @@ function handleAddtoCart(getCurrentProductId, getTotalStock, product) {
             return isVideo ? (
               <video
                 key={index}
-                src={slide?.image}
+               // src={slide?.image}
+               src={slide?.image?.replace(/^http:\/\//i, "https://")}
                className={`${
                   index === currentSlide ? "opacity-100" : "opacity-0"
                 } absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 border-4 border-white rounded-3xl shadow-lg p-1 md:px-2 md:py-2`}
