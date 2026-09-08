@@ -22,7 +22,7 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
 
   return (
     <SheetContent
-      className="sm:max-w-md h-screen flex flex-col"
+      className="sm:max-w-md h-screen flex flex-col pb-10"
     >
       <SheetHeader className="flex-shrink-0">
         <SheetTitle>Your Cart</SheetTitle>
@@ -30,7 +30,7 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
 
       {/* 🔥 Cart items area is now scrollable */}
       <div
-        className="mt-8 space-y-4 flex-1 min-h-0 overflow-y-auto pr-2"
+        className="mt-8 space-y-4 flex-1 min-h-0 overflow-y-auto pr-2 pb-2"
       >
         {cartItems && cartItems.length > 0
           ? cartItems.map((item) => (
@@ -43,7 +43,7 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
       </div>
 
       {/* 🔥 Total and Checkout stay fixed at the bottom */}
-      <div className="mt-4 space-y-4 flex-shrink-0 bg-background pt-3 border-t">
+      <div className="flex-shrink-0 bg-background pt-3 pb-8 border-t space-y-3">
         <div className="flex justify-between">
           <span className="font-bold">Total</span>
 

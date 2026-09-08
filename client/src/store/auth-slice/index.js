@@ -41,6 +41,35 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+
+// 🔥 Google OAuth Login
+// Frontend Google se credential (ID token) lega
+// ↓
+// Backend ko credential bhejega
+// ↓
+// Backend Google token verify karega
+// ↓
+// User mil gaya → Login
+// User nahi mila → New account create
+export const googleLoginUser = createAsyncThunk(
+  "/auth/google-login",
+
+  async (credential) => {
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_URL}/api/auth/google-login`,
+      {
+        credential,
+      },
+      {
+        withCredentials: true,
+      }
+    );
+
+    return response.data;
+  }
+);
+
+
 export const logoutUser = createAsyncThunk(
   "/auth/logout",
 
@@ -87,7 +116,7 @@ export const checkAuth = createAsyncThunk(
         headers: {  // Bearer ek keyword hai jo batata hai ki token kis type ka hai
           Authorization : `Bearer ${token}`,  // 👉 Server ko bol rahe: “Ye user authenticated hai — ye uska token hai”    Backend me kaise milta hai? - req.headers.authorization fir authHeader.split(" ")[1]
           "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",  // browser ko bol rahe: “Is response ko cache mat karo”    kyunki auth status change ho sakta hai, aur hume hamesha latest status chahiye hota hai. Agar browser cache karega, toh purana auth status mil sakta hai, jo galat hoga.
-        },// no-store - bilkul store mat karo, no-cache - reuse mat karo, must-revalidate - har baar server check karo, proxy-revalidate - proxy server bhi har baar server check kare
+        },// no-store - bilkul store mat karo, no-cache - reuse mat karo, must-revalidate - har baar server check karo, proxy server bhi har baar server check kare
 
 // headers kya hote hain?
 
@@ -134,6 +163,7 @@ const authSlice = createSlice({//
         state.user = null;
         state.isAuthenticated = false;
       })
+
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
       })
@@ -158,39 +188,65 @@ const authSlice = createSlice({//
 // "token" → key
 // value → actual data
 
-// JSON.stringify(...)
-// 👉 Data ko string me convert karta hai
-// 👉 Kyun?
-// ➡️ Storage sirf string accept karta hai
-
 // 🔥 JSON.stringify() kya karta hai?
 
 // JavaScript object (ya data) ko string me convert karta hai
-
-
+//
 // 🧠 Example
 // 🟢 Without stringify (object)
 // const user = {
 //   name: "Rahul",
 //   age: 22
 // };
-
+//
 // 🔴 Storage me directly nahi ja sakta
 // sessionStorage.setItem("user", user); ❌
 // ✅ With stringify
 // sessionStorage.setItem("user", JSON.stringify(user));
-
+//
 // 👉 Store hoga:
-
+//
 // "{\"name\":\"Rahul\",\"age\":22}"
 
       })
+
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
         state.token = null;
       })
+
+
+      // 🔥 Google OAuth states
+      .addCase(googleLoginUser.pending, (state) => {
+        state.isLoading = true;
+      })
+
+      .addCase(googleLoginUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload.success ? action.payload.user : null;
+        state.isAuthenticated = action.payload.success;
+        state.token = action.payload.token;
+
+        // Google login ke baad JWT token ko
+        // existing normal login ki tarah sessionStorage me save karna
+        if (action.payload.success && action.payload.token) {
+          sessionStorage.setItem(
+            "token",
+            JSON.stringify(action.payload.token)
+          );
+        }
+      })
+
+      .addCase(googleLoginUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.user = null;
+        state.isAuthenticated = false;
+        state.token = null;
+      })
+
+
       .addCase(checkAuth.pending, (state) => {
         state.isLoading = true;
       })
@@ -204,6 +260,7 @@ const authSlice = createSlice({//
         state.user = null;
         state.isAuthenticated = false;
       })
+
       .addCase(logoutUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = null;

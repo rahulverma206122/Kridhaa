@@ -4,13 +4,28 @@ const {
   loginUser,
   logoutUser,
   authMiddleware,
+  googleLoginUser, // 🔥 Google OAuth login controller
 } = require("../../controllers/auth/auth-controller");
 
 const router = express.Router();
 
 router.post("/register", registerUser); //"/register" - ye endpoint h jaha se frontend se registration request aayegi, jab user apne aap ko register karega to wo is endpoint pe POST request bhejega jisme user ke details (name, email, password) honge, ye request auth controller ke registerUser function ko handle karegi jo ki user ko register karne ka logic implement karega
+
 router.post("/login", loginUser);
+
 router.post("/logout", logoutUser);  // ye logout user auth controler.js se aaya h
+
+// 🔥 Google OAuth login
+// Frontend Google se credential (ID token) lega
+// ↓
+// Backend ko credential bhejega
+// ↓
+// googleLoginUser Google token verify karega
+// ↓
+// User mil gaya → login
+// User nahi mila → automatically account create
+router.post("/google-login", googleLoginUser);
+
 
 // 🔥 Flow yaha kya hota hai?
 // Request aayi

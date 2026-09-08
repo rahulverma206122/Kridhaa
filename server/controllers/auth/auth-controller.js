@@ -1,6 +1,12 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const { OAuth2Client } = require("google-auth-library");
 const User = require("../../models/User");
+
+const googleClient = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID
+);
 
 //register
 const registerUser = async (req, res) => {
@@ -8,6 +14,7 @@ const registerUser = async (req, res) => {
 
   try {
     const checkUser = await User.findOne({ email });
+
     if (checkUser)
       return res.json({
         success: false,
@@ -15,10 +22,11 @@ const registerUser = async (req, res) => {
       });
 
     const hashPassword = await bcrypt.hash(password, 12); // 12 is salt no
+
     const newUser = new User({
       userName,
       email,
-      password: hashPassword, // password ko haspassword diya 
+      password: hashPassword, // password ko hashpassword diya
     });
 
     await newUser.save();
@@ -28,12 +36,14 @@ const registerUser = async (req, res) => {
       message: "Registration successful",
     });
   } catch (e) {
-    res.status(500).json({  // 500 means server error and 505 means client error
+    res.status(500).json({
+      // 500 means server error and 505 means client error
       success: false,
       message: "Some error occured",
     });
   }
 };
+
 
 //login
 const loginUser = async (req, res) => {
@@ -41,19 +51,20 @@ const loginUser = async (req, res) => {
 
   try {
     const checkUser = await User.findOne({ email });
+
     if (!checkUser)
       return res.json({
         success: false,
-        message: "User doesn't exists! Please register first",  // ye msg frontend me jayega jab user login krne k liye email dalega aur wo email database me nhi hoga to ye msg aayega 
-      }); // 👉 Yaha (backend me) ye message na console me dikhega, na UI me automatically ❌  if agar ui pr dikhana h to toast.error(res.data.message); and console pr to console.log(res.data.message);
-
-//jab khi dikhega nhi to iska ky mtlb h kyu likha aisa msg kuch bhi likh dete
- // see at last 
+        message: "User doesn't exists! Please register first",
+        // ye msg frontend me jayega jab user login krne ke liye
+        // email dalega aur wo email database me nhi hoga
+      });
 
     const checkPasswordMatch = await bcrypt.compare(
-      password,  // password jo user ne abhi typ kiya h
+      password, // password jo user ne abhi typ kiya h
       checkUser.password // password jo user ka asli h
     );
+
     if (!checkPasswordMatch)
       return res.json({
         success: false,
@@ -61,54 +72,38 @@ const loginUser = async (req, res) => {
       });
 
     const token = jwt.sign(
-      {   // ye payload h 👉 Ye data token ke andar store hota hai, Sensitive data (password, OTP) kabhi mat daalna
+      {
+        // ye payload h
+        // Ye data token ke andar store hota hai
+        // Sensitive data (password, OTP) kabhi mat daalna
         id: checkUser._id,
         role: checkUser.role,
         email: checkUser.email,
         userName: checkUser.userName,
       },
-      "CLIENT_SECRET_KEY",   // 👉 Isse signature generate hota hai, Token ko tamper-proof banana, Verify karna ki token original hai
-      { expiresIn: "60m" }  // ye token 60 min tak rhega   1h bhi likh sakte h 60s bhi likh sakte h
+      "CLIENT_SECRET_KEY",
+      // 👉 Isse signature generate hota h
+      // Token ko tamper-proof banana
+      // Verify karna ki token original hai
+
+      { expiresIn: "60m" } // ye token 60 min tak rhega
     );
 
-//     "token" → cookie ka naam
-// token → JWT value
-// {...} → settings/options
-
-
-// 🔐 secure: false
-
-// 👉 HTTP pe bhi chalega (development)
-
-// 👉 Production me:
-
-// secure: true
-
-// ➡️ sirf HTTPS pe chalega
-
-
-    // res.cookie("token", token, { httpOnly: true, secure: false }).json({   // tum token ko cookie me store karna chahte ho instead of frontend storage
-    //   success: true,
-    //   message: "Logged in successfully",
-    //   user: {
-    //     email: checkUser.email,
-    //     role: checkUser.role,
-    //     id: checkUser._id,
-    //     userName: checkUser.userName,
-    //   },
-    // });
-
     res.status(200).json({
-      success : true,
-      message : 'Logged in successfully',
+      success: true,
+      message: "Logged in successfully",
       token,
-      user: {  // user ka data ek object ke andar structured form me bhejne ke liye 👉 Ye frontend ko bheja jaata hai Jab user login karta hai
+
+      user: {
+        // user ka data ek object ke andar structured form me bhejne ke liye
+        // Ye frontend ko bheja jaata h Jab user login karta h
+
         email: checkUser.email,
-         role: checkUser.role,
-         id: checkUser._id,
-         userName: checkUser.userName,
-       },
-     });
+        role: checkUser.role,
+        id: checkUser._id,
+        userName: checkUser.userName,
+      },
+    });
   } catch (e) {
     res.status(500).json({
       success: false,
@@ -117,39 +112,235 @@ const loginUser = async (req, res) => {
   }
 };
 
+
+// ============================================================
+// GOOGLE LOGIN
+// ============================================================
+// Google Identity Services frontend se ek ID token bhejega.
+// Backend us token ko verify karega.
+//
+// Flow:
+//
+// Google
+//   ↓
+// Frontend gets credential
+//   ↓
+// POST /google-login
+//   ↓
+// Backend verifies Google ID token
+//   ↓
+// Find user by email
+//   ↓
+// Existing user → login
+// New user → create account
+//   ↓
+// Our normal JWT
+//   ↓
+// Frontend stores token
+// ============================================================
+
+const googleLoginUser = async (req, res) => {
+  const { credential } = req.body;
+
+  if (!credential) {
+    return res.status(400).json({
+      success: false,
+      message: "Google credential is required",
+    });
+  }
+
+  if (!process.env.GOOGLE_CLIENT_ID) {
+    console.error("GOOGLE_CLIENT_ID is missing in server environment");
+
+    return res.status(500).json({
+      success: false,
+      message: "Google authentication is not configured",
+    });
+  }
+
+  try {
+    // Verify the ID token received from Google
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+
+    if (!payload) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid Google credential",
+      });
+    }
+
+    const {
+      sub: googleId,
+      email,
+      email_verified,
+      name,
+    } = payload;
+
+    // Google email verification check
+    if (!email || !email_verified) {
+      return res.status(401).json({
+        success: false,
+        message: "Google email could not be verified",
+      });
+    }
+
+    // ========================================================
+    // Find existing user
+    // ========================================================
+
+    let checkUser = await User.findOne({ email });
+
+    // ========================================================
+    // If user doesn't exist:
+    // Create a new account automatically
+    // ========================================================
+
+    if (!checkUser) {
+      let userName =
+        name?.trim() ||
+        email.split("@")[0];
+
+      // userName is unique in your current User schema.
+      // To avoid duplicate username errors, create a unique
+      // username if necessary.
+
+      const existingUserName = await User.findOne({
+        userName,
+      });
+
+      if (existingUserName) {
+        userName = `${userName}_${crypto
+          .randomBytes(3)
+          .toString("hex")}`;
+      }
+
+      // Your current User schema requires password.
+      // Google users don't provide our app password,
+      // so we create a random hashed password.
+      //
+      // This password is never shown to the user and
+      // cannot be used through the normal Google login flow.
+
+      const randomPassword = crypto.randomBytes(32).toString("hex");
+
+      const hashPassword = await bcrypt.hash(
+        randomPassword,
+        12
+      );
+
+      checkUser = new User({
+        userName,
+        email,
+        password: hashPassword,
+      });
+
+      await checkUser.save();
+    }
+
+    // ========================================================
+    // Create OUR application's JWT
+    //
+    // Same JWT structure as normal email/password login.
+    // This means the rest of your application doesn't need
+    // a separate authentication system.
+    // ========================================================
+
+    const token = jwt.sign(
+      {
+        id: checkUser._id,
+        role: checkUser.role,
+        email: checkUser.email,
+        userName: checkUser.userName,
+      },
+      "CLIENT_SECRET_KEY",
+      { expiresIn: "60m" }
+    );
+
+    // ========================================================
+    // Send same response structure as normal login
+    //
+    // This is important because your existing Redux
+    // login/check-auth flow expects token + user.
+    // ========================================================
+
+    return res.status(200).json({
+      success: true,
+      message: "Google login successful",
+      token,
+
+      user: {
+        email: checkUser.email,
+        role: checkUser.role,
+        id: checkUser._id,
+        userName: checkUser.userName,
+      },
+
+      googleId,
+    });
+  } catch (error) {
+    console.error("Google Login Error:", error);
+
+    return res.status(401).json({
+      success: false,
+      message: "Google authentication failed",
+    });
+  }
+};
+
+
 //logout
 
-const logoutUser = (req, res) => {  // await ni lagaya kyunki clearCookie() async operation nahi hai
-  res.clearCookie("token").json({  // token jo as a cookie set kiya tha usko clear kar diya
+const logoutUser = (req, res) => {
+  // await ni lagaya kyunki clearCookie()
+  // async operation nahi hai
+
+  res.clearCookie("token").json({
     success: true,
     message: "Logged out successfully!",
   });
 };
 
-//auth middleware  // iska kam h jab bhi user refresh krega ye check krega authantic h ya nhi
-// token hai ya nahi
-// token valid hai ya nahi
-// Ye login/register ke baad use hota hai
-// ❌ Login route (NO middleware) bcz no token needed  router.post("/login", loginUser);
-// with middleware router.get("/cart", authMiddleware, getCart);
-//user login ho chuka hai
-// token send karega
-// middleware verify karega
+
+//auth middleware
+// iska kam h jab bhi user refresh krega ye check krega authantic h ya nhi
 
 const authMiddleware = async (req, res, next) => {
-  const authHeader = req.headers['authorization'];  // 👉 req.headers = request ke headers (frontend se aate hain)
-  // authorization header me usually token hota hai
-  const token = authHeader && authHeader.split(' ')[1];  //  authHeader = "Bearer eyJhbGciOiJIUzI1Ni..." then ["Bearer", "eyJhbGciOiJIUzI1Ni..."] then token = "eyJhbGciOiJIUzI1Ni..."
+  const authHeader = req.headers["authorization"];
+
+  // req.headers = request ke headers
+  // frontend se aate hain
+
+  const token =
+    authHeader && authHeader.split(" ")[1];
+
+  // authHeader =
+  // "Bearer eyJhbGciOiJIUzI1Ni..."
+  //
+  // ["Bearer", "eyJhbGciOiJIUzI1Ni..."]
+  //
+  // token =
+  // "eyJhbGciOiJIUzI1Ni..."
+
   if (!token)
-    return res.status(401).json({  // 401 means unauthorized
+    return res.status(401).json({
       success: false,
       message: "Unauthorised user!",
     });
 
   try {
-    const decoded = jwt.verify(token, "CLIENT_SECRET_KEY"); // 👉 Agar valid hai → uske andar ka data (payload) milta hai
-    req.user = decoded;  // or is payload ko req me bhej deta h 
-    next();  // mtlb agle middleware ya controller function ko call karna
+    const decoded = jwt.verify(
+      token,
+      "CLIENT_SECRET_KEY"
+    );
+
+    req.user = decoded;
+
+    next();
   } catch (error) {
     res.status(401).json({
       success: false,
@@ -159,210 +350,10 @@ const authMiddleware = async (req, res, next) => {
 };
 
 
-// const authMiddleware = async (req, res, next) => {
-//   const token = req.cookies.token;
-//   if (!token)
-//     return res.status(401).json({
-//       success: false,
-//       message: "Unauthorised user!",
-//     });
-
-//   try {
-//     const decoded = jwt.verify(token, "CLIENT_SECRET_KEY");
-//     req.user = decoded;
-//     next();
-//   } catch (error) {
-//     res.status(401).json({
-//       success: false,
-//       message: "Unauthorised user!",
-//     });
-//   }
-// };
-
-module.exports = { registerUser, loginUser, logoutUser, authMiddleware };
-
-
-
-// Bhai solid question 👏 — yahi real understanding hai backend-frontend ki.
-
-// ---
-
-// # 🔥 Short answer:
-
-// 👉 **Ye message bekaar nahi hai**
-// 👉 Ye **frontend ke liye instruction / data hai**
-
-// ---
-
-// # 🧠 Core concept samajh:
-
-// 👉 Backend ka kaam:
-
-// > “Result + message bhejna”
-
-// 👉 Frontend ka kaam:
-
-// > “Us message ko user ko dikhana”
-
-// ---
-
-// # 🔥 Matlab ye line:
-
-// ```js
-// message: "User doesn't exists! Please register first"
-// ```
-
-// 👉 Ye actually:
-// ➡️ **frontend ko bheja gaya feedback hai**
-
-// ---
-
-// # 🧠 Real flow dekho:
-
-// ## 🟢 Step 1: User login karta hai
-
-// * Email enter karta hai
-
-// ---
-
-// ## 🟢 Step 2: Backend check karta hai
-
-// ```js
-// if (!checkUser)
-// ```
-
-// 👉 User nahi mila
-
-// ---
-
-// ## 🟢 Step 3: Backend bolta hai:
-
-// ```js
-// {
-//   success: false,
-//   message: "User doesn't exists!"
-// }
-// ```
-
-// 👉 Ye frontend ko bhej diya
-
-// ---
-
-// ## 🟢 Step 4: Frontend decide karta hai:
-
-// ### Option 1:
-
-// ```js
-// toast.error(res.data.message);
-// ```
-
-// 👉 UI me error dikh gaya ✅
-
-// ---
-
-// ### Option 2:
-
-// ```js
-// console.log(res.data.message);
-// ```
-
-// 👉 console me dikh gaya ✅
-
-// ---
-
-// ### Option 3:
-
-// 👉 kuch nahi kiya
-// 👉 ❌ kuch bhi nahi dikhega
-
-// ---
-
-// # 🔥 To fir kyu likhte hain message?
-
-// 👉 3 main reasons:
-
-// ---
-
-// ## ✅ 1. User feedback
-
-// 👉 User ko pata chale:
-
-// > “Kyu login fail hua?”
-
-// ---
-
-// ## ✅ 2. Debugging
-
-// 👉 Dev ko samajh aaye:
-
-// > “Issue kya hai?”
-
-// ---
-
-// ## ✅ 3. Standard API design
-
-// 👉 Har response me:
-
-// ```js
-// {
-//   success,
-//   message,
-//   data
-// }
-// ```
-
-// 👉 Clean + consistent structure ✔️
-
-// ---
-
-// # 🧠 Important understanding:
-
-// 👉 Backend bina message ke bhi kaam kar sakta hai ❌
-// 👉 But **user experience kharab ho jayega**
-
-// ---
-
-// # ⚡ Wrong approach:
-
-// ```js
-// return res.json({ success: false });
-// ```
-
-// 👉 User: “kya hua?? 🤯”
-
-// ---
-
-// # ✅ Correct:
-
-// ```js
-// return res.json({
-//   success: false,
-//   message: "User doesn't exists!"
-// });
-// ```
-
-// 👉 User: “ohh account hi nahi hai 👍”
-
-// ---
-
-// # 🧠 Simple analogy:
-
-// 👉 Backend = doctor report
-// 👉 Frontend = doctor jo explain karta hai
-
-// 👉 Report me likha hona zaroori hai 😄
-
-// ---
-
-// # ⚡ Interview one-liner:
-
-// 👉 **“Messages are sent from backend to inform the frontend about the result of an operation, improving user experience and debugging.”**
-
-// ---
-
-// # 🔥 Final clarity:
-
-// 👉 Message likhna = **communication**
-// 👉 Dikhana = **frontend responsibility**
-
-
+module.exports = {
+  registerUser,
+  loginUser,
+  googleLoginUser,
+  logoutUser,
+  authMiddleware,
+};
