@@ -40,6 +40,14 @@ const store = configureStore({  // see notes configureStore is a function from R
 
     visualSearch: visualSearchReducer,
   },
+
+  // 🔥 Redux development warning configuration
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        warnAfter: 100,
+      },
+    }),
 });
 
 export default store;

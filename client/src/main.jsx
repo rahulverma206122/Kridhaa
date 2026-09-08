@@ -9,7 +9,12 @@ import { Toaster } from "./components/ui/toaster.jsx";  // 👉 Toast notificati
 createRoot(document.getElementById("root")).render(
 
   // Wrapper structure
-  <BrowserRouter>
+  <BrowserRouter
+    future={{
+      v7_startTransition: true,
+      v7_relativeSplatPath: true,
+    }}
+  >
     <Provider store={store}>
       <App />
       <Toaster />
