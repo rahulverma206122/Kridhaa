@@ -27,9 +27,9 @@ const initialState = {
 function AuthLogin() {
 
   console.log(
-  "DEPLOYED GOOGLE CLIENT ID:",
-  import.meta.env.VITE_GOOGLE_CLIENT_ID
-);
+    "DEPLOYED GOOGLE CLIENT ID:",
+    import.meta.env.VITE_GOOGLE_CLIENT_ID
+  );
 
   const [formData, setFormData] = useState(initialState);
   const dispatch = useDispatch();
@@ -150,10 +150,18 @@ function AuthLogin() {
         callback: handleGoogleLogin,
       });
 
+      // 🔥 Google button ko mobile par responsive rakhna
+      // Desktop par maximum 400px rahega
+      // Mobile par available width ke according adjust hoga
+      const buttonWidth = Math.min(
+        400,
+        googleButton.clientWidth || window.innerWidth - 60
+      );
+
       window.google.accounts.id.renderButton(googleButton, {
         theme: "outline",
         size: "large",
-        width: 400,
+        width: buttonWidth,
         text: "signin_with",
         shape: "rectangular",
       });
@@ -233,7 +241,7 @@ function AuthLogin() {
         {/* Google button container */}
         <div
           id="google-signin-button"
-          className="flex w-full justify-center"
+          className="flex w-full justify-center overflow-hidden"
         >
         </div>
 
